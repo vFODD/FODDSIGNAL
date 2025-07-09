@@ -95,6 +95,11 @@
     }
     .dir-long, .pnl-pos, .reason-tp { color: #78B159; font-weight: bold; }
     .dir-short, .pnl-neg, .reason-sl { color: #DD2E44; font-weight: bold; }
+    .transition {
+        transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 300ms; 
+    }
   </style>
 </head>
 <body>
@@ -414,7 +419,7 @@
             const valueColorClass = returnValue >= 0 ? 'stat-total-positive' : 'stat-total-negative';
             
             bar.innerHTML = `
-              <div class="stat-box stat-total stat-total-single" data-info="${info}">
+              <div class="stat-box stat-total stat-total-single transition" data-info="${info}">
                 <span class="stat-total-label">${label}:</span>
                 <span class="stat-total-value ${valueColorClass}">${stats.totalReturn}</span>
               </div>
