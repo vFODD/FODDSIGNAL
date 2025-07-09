@@ -807,6 +807,23 @@
                 color: #ef4444 !important;
                 text-shadow: 0 1px 8px #ef444488;
             }
+            /* Mobil uyum için total return butonu */
+            @media (max-width: 600px) {
+                .stat-total, .stat-total-single {
+                    min-width: 0 !important;
+                    max-width: 98vw !important;
+                    width: 98vw !important;
+                    padding: 0 8px !important;
+                    font-size: 0.98em !important;
+                    height: auto !important;
+                    flex-direction: column !important;
+                    gap: 6px !important;
+                }
+                .stat-total-label, .stat-total-value {
+                    font-size: 1em !important;
+                    margin: 0 !important;
+                }
+            }
         </style>
 
         <div id="info-popup" class="info-popup" style="display: none"></div>
