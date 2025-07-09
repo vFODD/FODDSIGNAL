@@ -403,12 +403,13 @@
                         lastEquity = eq;
                     }
                     let dateStr = t.time.split(" ")[0].replace(/\./g, "-");
-                    let dateObj = new Date(
-                        "20" + dateStr.split("-").reverse().join("-"),
-                    );
-                    if (!isNaN(dateObj)) {
-                        if (!firstDate || dateObj < firstDate)
-                            firstDate = dateObj;
+                    let dateParts = dateStr.split("-");
+                    let dateObj = null;
+                    if (dateParts.length === 3) {
+                        dateObj = new Date("20" + dateParts[2] + "-" + dateParts[1] + "-" + dateParts[0]);
+                    }
+                    if (dateObj && !isNaN(dateObj)) {
+                        if (!firstDate || dateObj < firstDate) firstDate = dateObj;
                         if (!lastDate || dateObj > lastDate) lastDate = dateObj;
                     }
                     if (t.reason === "TP") win++;
@@ -424,30 +425,34 @@
                             }
                         }
                     }
-                    let date = t.time.split(" ")[0].replace(/\./g, "-");
-                    let dateObj2 = new Date(
-                        "20" + date.split("-").reverse().join("-"),
-                    );
-                    let ym =
-                        dateObj2.getFullYear() +
-                        "-" +
-                        (dateObj2.getMonth() + 1);
-                    let yw =
-                        dateObj2.getFullYear() + "-W" + getWeekNumber(dateObj2);
-                    monthEquity[ym] = eq;
-                    weekEquity[yw] = eq;
+                    if (dateObj && !isNaN(dateObj) && !isNaN(eq)) {
+                        let ym = dateObj.getFullYear() + "-" + (dateObj.getMonth() + 1);
+                        let yw = dateObj.getFullYear() + "-W" + getWeekNumber(dateObj);
+                        monthEquity[ym] = eq;
+                        weekEquity[yw] = eq;
+                    }
                 });
                 let eqReturns = [];
                 for (let i = 1; i < equity.length; i++) {
-                    if (equity[i - 1] !== 0 && !isNaN(equity[i - 1]) && !isNaN(equity[i])) {
-                        eqReturns.push((equity[i] - equity[i - 1]) / equity[i - 1]);
+                    if (
+                        equity[i - 1] !== 0 &&
+                        isFinite(equity[i - 1]) &&
+                        isFinite(equity[i])
+                    ) {
+                        let ret = (equity[i] - equity[i - 1]) / equity[i - 1];
+                        if (isFinite(ret)) eqReturns.push(ret);
                     }
                 }
                 let mean = eqReturns.length > 0 ? eqReturns.reduce((a, b) => a + b, 0) / eqReturns.length : 0;
-                let std = eqReturns.length > 0 ? Math.sqrt(eqReturns.reduce((a, b) => a + (b - mean) ** 2, 0) / eqReturns.length) : 0;
-                let sharpe = std
+                let std = 0;
+                if (eqReturns.length > 1) {
+                    const m = mean;
+                    std = Math.sqrt(eqReturns.reduce((a, b) => a + (b - m) ** 2, 0) / (eqReturns.length - 1));
+                }
+                let sharpe = (std && isFinite(std) && std !== 0)
                     ? ((mean / std) * Math.sqrt(252)).toFixed(2)
                     : "—";
+                if (!isFinite(sharpe) || sharpe === "NaN") sharpe = "—";
                 if (equity.length > 0) {
                     let peak = equity[0];
                     for (let i = 1; i < equity.length; i++) {
@@ -459,17 +464,33 @@
                 let winRate = ((win / n) * 100).toFixed(1) + "%";
                 let avgRR = rrCount ? (rrSum / rrCount).toFixed(2) : "—";
                 let maxDraw = maxDD ? (maxDD * 100).toFixed(2) + "%" : "—";
-                let lastMonth = Object.keys(monthEquity).sort().pop();
-                let prevMonth = Object.keys(monthEquity).sort().slice(-2, -1)[0];
-                let lastWeek = Object.keys(weekEquity).sort().pop();
-                let prevWeek = Object.keys(weekEquity).sort().slice(-2, -1)[0];
-                let monthNet = (lastMonth && prevMonth && monthEquity[prevMonth])
-                    ? (((monthEquity[lastMonth] - monthEquity[prevMonth]) / monthEquity[prevMonth]) * 100).toFixed(2) + "%"
+                // Aylar
+                let months = Object.keys(monthEquity).sort((a, b) => {
+                    let [ya, ma] = a.split("-").map(Number);
+                    let [yb, mb] = b.split("-").map(Number);
+                    return ya !== yb ? ya - yb : ma - mb;
+                });
+                let lastMonthKey = months.length > 0 ? months[months.length - 1] : null;
+                let prevMonthKey = months.length > 1 ? months[months.length - 2] : null;
+                let monthNet = (lastMonthKey && prevMonthKey && monthEquity[prevMonthKey] !== 0 && monthEquity[prevMonthKey] !== undefined)
+                    ? (((monthEquity[lastMonthKey] - monthEquity[prevMonthKey]) / monthEquity[prevMonthKey]) * 100).toFixed(2) + "%"
                     : "—";
-                let weekNet = (lastWeek && prevWeek && weekEquity[prevWeek])
-                    ? (((weekEquity[lastWeek] - weekEquity[prevWeek]) / weekEquity[prevWeek]) * 100).toFixed(2) + "%"
+
+                // Haftalar
+                let weeks = Object.keys(weekEquity).sort((a, b) => {
+                    let [ya, wa] = a.split("-W");
+                    let [yb, wb] = b.split("-W");
+                    ya = Number(ya); wa = Number(wa);
+                    yb = Number(yb); wb = Number(wb);
+                    return ya !== yb ? ya - yb : wa - wb;
+                });
+                let lastWeekKey = weeks.length > 0 ? weeks[weeks.length - 1] : null;
+                let prevWeekKey = weeks.length > 1 ? weeks[weeks.length - 2] : null;
+                let weekNet = (lastWeekKey && prevWeekKey && weekEquity[prevWeekKey] !== 0 && weekEquity[prevWeekKey] !== undefined)
+                    ? (((weekEquity[lastWeekKey] - weekEquity[prevWeekKey]) / weekEquity[prevWeekKey]) * 100).toFixed(2) + "%"
                     : "—";
-                let totalReturnPct = (firstEquity && lastEquity)
+
+                let totalReturnPct = (firstEquity !== null && lastEquity !== null && firstEquity !== 0)
                     ? (((lastEquity - firstEquity) / firstEquity) * 100).toFixed(2) + "%"
                     : "—";
                 let dayCount =
