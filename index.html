@@ -381,34 +381,61 @@
 
         <script>
             function calcStats(trades) {
+                if (!trades.length) return null;
+                let returns = [];
+                let equity = [];
+                let dates = [];
+                let firstEquity = 100;
+                let lastEquity = null;
+                let firstDate = null, lastDate = null;
+
+                trades.forEach((t, idx) => {
+                    let eq = parseFloat(t.equity);
+                    if (!isNaN(eq)) {
+                        equity.push(eq);
+                        lastEquity = eq;
+                    }
+                    let dateStr = t.time.split(" ")[0].replace(/\./g, "-");
+                    let dateObj = new Date("20" + dateStr.split("-").reverse().join("-"));
+                    if (!isNaN(dateObj)) {
+                        dates.push(dateObj);
+                        if (!firstDate || dateObj < firstDate) firstDate = dateObj;
+                        if (!lastDate || dateObj > lastDate) lastDate = dateObj;
+                    }
+                });
+
+                let prevEq = firstEquity;
+                for (let i = 0; i < equity.length; i++) {
+                    let ret = (equity[i] / prevEq) - 1;
+                    returns.push(ret);
+                    prevEq = equity[i];
+                }
+
+                let mean = returns.reduce((a, b) => a + b, 0) / returns.length;
+                let std = Math.sqrt(returns.reduce((a, b) => a + (b - mean) ** 2, 0) / returns.length);
+                let sharpe = std ? ((mean / std) * Math.sqrt(252)).toFixed(2) : "—";
+
+                let totalReturn = ((lastEquity / firstEquity - 1) * 100).toFixed(2) + "%";
+
+                let now = lastDate;
+                let weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7);
+                let monthAgo = new Date(now); monthAgo.setMonth(now.getMonth() - 1);
+
+                let eqWeekAgo = firstEquity, eqMonthAgo = firstEquity;
+                for (let i = 0; i < dates.length; i++) {
+                    if (dates[i] <= weekAgo) eqWeekAgo = equity[i];
+                    if (dates[i] <= monthAgo) eqMonthAgo = equity[i];
+                }
+                let weekReturn = eqWeekAgo ? ((lastEquity / eqWeekAgo - 1) * 100).toFixed(2) + "%" : "—";
+                let monthReturn = eqMonthAgo ? ((lastEquity / eqMonthAgo - 1) * 100).toFixed(2) + "%" : "—";
+
                 const n = trades.length;
-                if (n === 0) return null;
                 let win = 0,
                     rrSum = 0,
                     rrCount = 0,
-                    returns = [],
-                    equity = [],
                     maxDD = 0;
-                let monthReturns = {},
-                    weekReturns = {};
-                let lastEquity = null;
-                let firstDate = null,
-                    lastDate = null,
-                    totalReturn = 0;
+                let equityForDD = [];
                 trades.forEach((t, idx) => {
-                    const ret = parseFloat(t.result.replace("%", "")) / 100;
-                    returns.push(ret);
-                    totalReturn += ret;
-                    
-                    let dateStr = t.time.split(" ")[0].replace(/\./g, "-");
-                    let dateObj = new Date(
-                        "20" + dateStr.split("-").reverse().join("-"),
-                    );
-                    if (!isNaN(dateObj)) {
-                        if (!firstDate || dateObj < firstDate)
-                            firstDate = dateObj;
-                        if (!lastDate || dateObj > lastDate) lastDate = dateObj;
-                    }
                     if (t.reason === "TP") win++;
                     if (t.sl && t.tp && t.entry) {
                         let entry = parseFloat(t.entry),
@@ -422,70 +449,30 @@
                             }
                         }
                     }
-                    
                     let eq = parseFloat(t.equity);
-                    if (!isNaN(eq)) equity.push(eq);
-                    
-                    let date = t.time.split(" ")[0].replace(/\./g, "-");
-                    let dateObj2 = new Date(
-                        "20" + date.split("-").reverse().join("-"),
-                    );
-                    let ym =
-                        dateObj2.getFullYear() +
-                        "-" +
-                        (dateObj2.getMonth() + 1);
-                    let yw =
-                        dateObj2.getFullYear() + "-W" + getWeekNumber(dateObj2);
-                    monthReturns[ym] = (monthReturns[ym] || 0) + ret;
-                    weekReturns[yw] = (weekReturns[yw] || 0) + ret;
+                    if (!isNaN(eq)) equityForDD.push(eq);
                 });
-                
-                if (equity.length > 0) {
-                    let peak = equity[0];
-                    for (let i = 1; i < equity.length; i++) {
-                        if (equity[i] > peak) peak = equity[i];
-                        let dd = (peak - equity[i]) / peak;
+                if (equityForDD.length > 0) {
+                    let peak = equityForDD[0];
+                    for (let i = 1; i < equityForDD.length; i++) {
+                        if (equityForDD[i] > peak) peak = equityForDD[i];
+                        let dd = (peak - equityForDD[i]) / peak;
                         if (dd > maxDD) maxDD = dd;
                     }
                 }
-                
-                let mean = returns.reduce((a, b) => a + b, 0) / n;
-                let std = Math.sqrt(
-                    returns.reduce((a, b) => a + (b - mean) ** 2, 0) / n,
-                );
-                let sharpe = std
-                    ? ((mean / std) * Math.sqrt(252)).toFixed(2)
-                    : "—";
-                
                 let winRate = ((win / n) * 100).toFixed(1) + "%";
-                
                 let avgRR = rrCount ? (rrSum / rrCount).toFixed(2) : "—";
-                
                 let maxDraw = maxDD ? (maxDD * 100).toFixed(2) + "%" : "—";
-                
-                let lastMonth = Object.keys(monthReturns).sort().pop();
-                let lastWeek = Object.keys(weekReturns).sort().pop();
-                let monthNet = lastMonth
-                    ? (monthReturns[lastMonth] * 100).toFixed(2) + "%"
-                    : "—";
-                let weekNet = lastWeek
-                    ? (weekReturns[lastWeek] * 100).toFixed(2) + "%"
-                    : "—";
-                
-                let totalReturnPct = (totalReturn * 100).toFixed(2) + "%";
-                let dayCount =
-                    firstDate && lastDate
-                        ? Math.round((lastDate - firstDate) / 86400000) + 1
-                        : null;
+                let dayCount = firstDate && lastDate ? Math.round((lastDate - firstDate) / 86400000) + 1 : null;
                 return {
                     sharpe,
                     winRate,
                     avgRR,
                     maxDraw,
-                    monthNet,
-                    weekNet,
+                    monthNet: monthReturn,
+                    weekNet: weekReturn,
                     n,
-                    totalReturn: totalReturnPct,
+                    totalReturn,
                     dayCount,
                 };
             }
