@@ -1,377 +1,510 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>FODDSIGNAL TRADE LOGS</title>
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <style>
-    body {
-      font-family: 'Consolas', 'Segoe UI', Arial, sans-serif;
-      background: #0e1016;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      color: #eaeaea;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    h2 {
-      color: #fff;
-      text-align: center;
-      margin: 40px 0 30px 0;
-      font-size: 2.2rem;
-      letter-spacing: 2px;
-      font-weight: 700;
-      text-shadow: 0 2px 16px #000a;
-    }
-    .table-container {
-      background: #181a20;
-      border-radius: 18px;
-      box-shadow: 0 4px 32px #000a, 0 1.5px 0 #23272F;
-      padding: 24px 18px 18px 18px;
-      margin-bottom: 40px;
-      width: 98vw;
-      max-width: 1100px;
-      overflow-x: auto;
-      max-height: 600px;
-      overflow-y: auto;
-    }
-    table {
-      border-collapse: separate;
-      border-spacing: 0;
-      width: 100%;
-      background: #181a20;
-      color: #eaeaea;
-      font-size: 1.01em;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 0.5px 0 #23272F;
-    }
-    th, td {
-      padding: 13px 8px;
-      text-align: center;
-      border-bottom: 1px solid #23272F;
-    }
-    td.time-cell, td.sl-cell, td.tp-cell {
-      font-size: 0.85em;
-      opacity: 0.85;
-    }
-    th:nth-child(3), td:nth-child(3) {
-      min-width: 60px;
-      max-width: 70px;
-      width: 65px;
-    }
-    th {
-      background: #23272F;
-      color: #fff;
-      font-weight: 700;
-      text-transform: uppercase;
-      font-size: 0.97em;
-      letter-spacing: 1px;
-      border: none;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    tr:last-child td {
-      border-bottom: none;
-    }
-    tr {
-      transition: background 0.2s;
-    }
-    tr:nth-child(even) {
-      background-color: #181a20;
-    }
-    tr:nth-child(odd) {
-      background-color: #15171c;
-    }
-    tr:hover {
-      background-color: #23272F;
-    }
-    td {
-      font-size: 1em;
-      font-family: inherit;
-    }
-    .dir-long, .pnl-pos, .reason-tp { color: #78B159; font-weight: bold; }
-    .dir-short, .pnl-neg, .reason-sl { color: #DD2E44; font-weight: bold; }
-    .transition {
-        transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        transition-duration: 300ms; 
-    }
-  </style>
-</head>
-<body>
-  <div class="strategy-block">
-    <div class="strategy-header">
-      <img src="v.png" alt="FODDSIGNAL" class="strategy-img">
-      <h2>FODDSIGNAL</h2>
-    </div>
-    <div id="stats-bar" class="stats-bar"></div>
-    <div class="table-container">
-      <table id="tradeTable">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Coin</th>
-            <th>L/S</th>
-            <th>Entry</th>
-            <th>SL</th>
-            <th>TP</th>
-            <th>Exit</th>
-            <th>Reason</th>
-            <th>PnL</th>
-            <th>Equity</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    <div id="total-return-bar" style="display:flex; justify-content:center; margin: 12px 0 24px 0;"></div>
-  </div>
-  <div class="strategy-block">
-    <div class="strategy-header">
-      <img src="v2.png" alt="FODDv2 (PRO)" class="strategy-img">
-      <h2>FODDv2 (PRO)</h2>
-    </div>
-    <div id="stats-bar-v2" class="stats-bar"></div>
-    <div class="table-container">
-      <table id="tradeTable-v2">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Coin</th>
-            <th>L/S</th>
-            <th>Entry</th>
-            <th>SL</th>
-            <th>TP</th>
-            <th>Exit</th>
-            <th>Reason</th>
-            <th>PnL</th>
-            <th>Equity</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    <div id="total-return-bar-v2" style="display:flex; justify-content:center; margin: 12px 0 24px 0;"></div>
-  </div>
-  <style>
-    .strategy-block {
-      width: 98vw;
-      max-width: 1100px;
-      margin: 0 auto 38px auto;
-      background: none;
-    }
-    .strategy-header {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      margin-bottom: 10px;
-      margin-top: 32px;
-    }
-    .strategy-header h2 {
-      margin: 0;
-      font-size: 2.0rem;
-      color: #fff;
-      letter-spacing: 1.5px;
-      font-weight: 700;
-      text-shadow: 0 2px 16px #000a;
-    }
-    .strategy-img {
-      width: 54px;
-      height: 54px;
-      border-radius: 12px;
-      background: #23272F;
-      object-fit: contain;
-      box-shadow: 0 2px 12px #0005;
-      border: 2px solid #23272F;
-    }
-    .stats-bar {
-      display: flex;
-      flex-wrap: nowrap;
-      gap: 12px;
-      margin-bottom: 18px;
-      justify-content: center;
-      width: 98vw;
-      max-width: 1100px;
-      margin-left: auto;
-      margin-right: auto;
-      box-sizing: border-box;
-    }
-    .stat-box {
-      flex: 1 1 0;
-      min-width: 0;
-      max-width: none;
-      background: linear-gradient(135deg, #181a20 80%, #23272F 100%);
-      border-radius: 12px;
-      padding: 14px 6px 10px 6px;
-      box-shadow: 0 2px 12px #0003, 0 1.5px 0 #23272F;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: transform 0.13s, box-shadow 0.13s;
-      cursor: pointer;
-      border: 1.5px solid #23272F;
-      position: relative;
-      box-sizing: border-box;
-    }
-    .stat-box:hover {
-      transform: translateY(-3px) scale(1.035);
-      box-shadow: 0 6px 32px #0007, 0 2px 0 #23272F;
-      border-color: #06a091;
-    }
-    .stat-label {
-      font-size: 0.93em;
-      opacity: 0.7;
-      margin-bottom: 2px;
-      letter-spacing: 0.5px;
-    }
-    .stat-value {
-      font-size: 1.18em;
-      font-weight: bold;
-      margin-bottom: 0;
-      margin-top: 2px;
-    }
-    .stat-sharpe { color: #06a091; }
-    .stat-win { color: #78B159; }
-    .stat-rr { color: #eab308; }
-    .stat-dd { color: #ef4444; }
-    .stat-month { color: #3b82f6; /* mavi */ }
-    .stat-week { color: #f59e42; /* turuncu */ }
-    .stat-n { color: #eaeaea; }
+    <head>
+        <meta charset="UTF-8" />
+        <title>FODDSIGNAL TRADE LOGS</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+            name="description"
+            content="FODDSIGNAL & FODDv2 (PRO) - Crypto trading strategy logs, statistics, and performance metrics. View trade history, win rate, Sharpe ratio, drawdown, and more."
+        />
+        <meta
+            name="keywords"
+            content="FODDSIGNAL, FODDv2, crypto, trading, trade logs, statistics, Sharpe ratio, win rate, drawdown, risk reward, performance, equity, trading strategy"
+        />
+        <meta name="author" content="FODDSIGNAL" />
+        <meta property="og:title" content="FODDSIGNAL TRADE LOGS" />
+        <meta
+            property="og:description"
+            content="View FODDSIGNAL & FODDv2 (PRO) crypto trading logs, stats, and performance metrics."
+        />
+        <meta property="og:type" content="website" />
+        <meta
+            property="og:image"
+            content="https://vfodd.github.io/FODDSIGNAL/v.png"
+        />
+        <meta property="og:url" content="https://vfodd.github.io/FODDSIGNAL/" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="FODDSIGNAL TRADE LOGS" />
+        <meta
+            name="twitter:description"
+            content="FODDSIGNAL & FODDv2 (PRO) - Crypto trading logs and performance stats."
+        />
+        <meta
+            name="twitter:image"
+            content="https://vfodd.github.io/FODDSIGNAL/v.png"
+        />
+        <link rel="icon" type="image/x-icon" href="favicon.ico" />
+        <style>
+            body {
+                font-family: "Consolas", "Segoe UI", Arial, sans-serif;
+                background: #0e1016;
+                margin: 0;
+                padding: 0;
+                min-height: 100vh;
+                color: #eaeaea;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            h2 {
+                color: #fff;
+                text-align: center;
+                margin: 40px 0 30px 0;
+                font-size: 2.2rem;
+                letter-spacing: 2px;
+                font-weight: 700;
+                text-shadow: 0 2px 16px #000a;
+            }
+            .table-container {
+                background: #181a20;
+                border-radius: 18px;
+                box-shadow:
+                    0 4px 32px #000a,
+                    0 1.5px 0 #23272f;
+                padding: 24px 18px 18px 18px;
+                margin-bottom: 40px;
+                width: 98vw;
+                max-width: 1100px;
+                overflow-x: auto;
+                max-height: 600px;
+                overflow-y: auto;
+            }
+            table {
+                border-collapse: separate;
+                border-spacing: 0;
+                width: 100%;
+                background: #181a20;
+                color: #eaeaea;
+                font-size: 1.01em;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 0.5px 0 #23272f;
+            }
+            th,
+            td {
+                padding: 13px 8px;
+                text-align: center;
+                border-bottom: 1px solid #23272f;
+            }
+            td.time-cell,
+            td.sl-cell,
+            td.tp-cell {
+                font-size: 0.85em;
+                opacity: 0.85;
+            }
+            th:nth-child(3),
+            td:nth-child(3) {
+                min-width: 60px;
+                max-width: 70px;
+                width: 65px;
+            }
+            th {
+                background: #23272f;
+                color: #fff;
+                font-weight: 700;
+                text-transform: uppercase;
+                font-size: 0.97em;
+                letter-spacing: 1px;
+                border: none;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+            tr:last-child td {
+                border-bottom: none;
+            }
+            tr {
+                transition: background 0.2s;
+            }
+            tr:nth-child(even) {
+                background-color: #181a20;
+            }
+            tr:nth-child(odd) {
+                background-color: #15171c;
+            }
+            tr:hover {
+                background-color: #23272f;
+            }
+            td {
+                font-size: 1em;
+                font-family: inherit;
+            }
+            .dir-long,
+            .pnl-pos,
+            .reason-tp {
+                color: #78b159;
+                font-weight: bold;
+            }
+            .dir-short,
+            .pnl-neg,
+            .reason-sl {
+                color: #dd2e44;
+                font-weight: bold;
+            }
+            .transition {
+                transition-property:
+                    background-color, border-color, color, fill, stroke,
+                    opacity, box-shadow, transform;
+                transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+                transition-duration: 300ms;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="strategy-block">
+            <div class="strategy-header">
+                <img src="v.png" alt="FODDSIGNAL" class="strategy-img" />
+                <h2>FODDSIGNAL</h2>
+            </div>
+            <div id="stats-bar" class="stats-bar"></div>
+            <div class="table-container">
+                <table id="tradeTable">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Coin</th>
+                            <th>L/S</th>
+                            <th>Entry</th>
+                            <th>SL</th>
+                            <th>TP</th>
+                            <th>Exit</th>
+                            <th>Reason</th>
+                            <th>PnL</th>
+                            <th>Equity</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div
+                id="total-return-bar"
+                style="
+                    display: flex;
+                    justify-content: center;
+                    margin: 12px 0 24px 0;
+                "
+            ></div>
+        </div>
+        <div class="strategy-block">
+            <div class="strategy-header">
+                <img src="v2.png" alt="FODDv2 (PRO)" class="strategy-img" />
+                <h2>FODDv2 (PRO)</h2>
+            </div>
+            <div id="stats-bar-v2" class="stats-bar"></div>
+            <div class="table-container">
+                <table id="tradeTable-v2">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Coin</th>
+                            <th>L/S</th>
+                            <th>Entry</th>
+                            <th>SL</th>
+                            <th>TP</th>
+                            <th>Exit</th>
+                            <th>Reason</th>
+                            <th>PnL</th>
+                            <th>Equity</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div
+                id="total-return-bar-v2"
+                style="
+                    display: flex;
+                    justify-content: center;
+                    margin: 12px 0 24px 0;
+                "
+            ></div>
+        </div>
+        <style>
+            .strategy-block {
+                width: 98vw;
+                max-width: 1100px;
+                margin: 0 auto 38px auto;
+                background: none;
+            }
+            .strategy-header {
+                display: flex;
+                align-items: center;
+                gap: 18px;
+                margin-bottom: 10px;
+                margin-top: 32px;
+            }
+            .strategy-header h2 {
+                margin: 0;
+                font-size: 2rem;
+                color: #fff;
+                letter-spacing: 1.5px;
+                font-weight: 700;
+                text-shadow: 0 2px 16px #000a;
+            }
+            .strategy-img {
+                width: 54px;
+                height: 54px;
+                border-radius: 12px;
+                background: #23272f;
+                object-fit: contain;
+                box-shadow: 0 2px 12px #0005;
+                border: 2px solid #23272f;
+            }
+            .stats-bar {
+                display: flex;
+                flex-wrap: nowrap;
+                gap: 12px;
+                margin-bottom: 18px;
+                justify-content: center;
+                width: 98vw;
+                max-width: 1100px;
+                margin-left: auto;
+                margin-right: auto;
+                box-sizing: border-box;
+            }
+            .stat-box {
+                flex: 1 1 0;
+                min-width: 0;
+                max-width: none;
+                background: linear-gradient(135deg, #181a20 80%, #23272f 100%);
+                border-radius: 12px;
+                padding: 14px 6px 10px 6px;
+                box-shadow:
+                    0 2px 12px #0003,
+                    0 1.5px 0 #23272f;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                transition:
+                    transform 0.13s,
+                    box-shadow 0.13s;
+                cursor: pointer;
+                border: 1.5px solid #23272f;
+                position: relative;
+                box-sizing: border-box;
+            }
+            .stat-box:hover {
+                transform: translateY(-3px) scale(1.035);
+                box-shadow:
+                    0 6px 32px #0007,
+                    0 2px 0 #23272f;
+                border-color: #06a091;
+            }
+            .stat-label {
+                font-size: 0.93em;
+                opacity: 0.7;
+                margin-bottom: 2px;
+                letter-spacing: 0.5px;
+            }
+            .stat-value {
+                font-size: 1.18em;
+                font-weight: bold;
+                margin-bottom: 0;
+                margin-top: 2px;
+            }
+            .stat-sharpe {
+                color: #06a091;
+            }
+            .stat-win {
+                color: #78b159;
+            }
+            .stat-rr {
+                color: #eab308;
+            }
+            .stat-dd {
+                color: #ef4444;
+            }
+            .stat-month {
+                color: #3b82f6; /* mavi */
+            }
+            .stat-week {
+                color: #f59e42; /* turuncu */
+            }
+            .stat-n {
+                color: #eaeaea;
+            }
 
-    /* Stat kutularının tek satırda kalmasını sağla */
-    .stats-bar {
-      flex-wrap: wrap;
-      align-items: stretch;
-      overflow-x: visible;
-    }
-    @media (max-width: 1100px) {
-      .stats-bar {
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-      .stat-box {
-        min-width: 120px;
-        padding: 12px 4px 8px 4px;
-      }
-    }
-    @media (max-width: 800px) {
-      .stats-bar {
-        flex-direction: column;
-        gap: 10px;
-      }
-      .stat-box {
-        width: 100%;
-        min-width: 0;
-        max-width: 100%;
-      }
-    }
-  </style>
+            /* Stat kutularının tek satırda kalmasını sağla */
+            .stats-bar {
+                flex-wrap: wrap;
+                align-items: stretch;
+                overflow-x: visible;
+            }
+            @media (max-width: 1100px) {
+                .stats-bar {
+                    flex-wrap: wrap;
+                    gap: 10px;
+                }
+                .stat-box {
+                    min-width: 120px;
+                    padding: 12px 4px 8px 4px;
+                }
+            }
+            @media (max-width: 800px) {
+                .stats-bar {
+                    flex-direction: column;
+                    gap: 10px;
+                }
+                .stat-box {
+                    width: 100%;
+                    min-width: 0;
+                    max-width: 100%;
+                }
+            }
+        </style>
 
-  <script>
-    function calcStats(trades) {
-      const n = trades.length;
-      if (n === 0) return null;
-      let win = 0, rrSum = 0, rrCount = 0, returns = [], equity = [], maxDD = 0;
-      let monthReturns = {}, weekReturns = {};
-      let lastEquity = null;
-      let firstDate = null, lastDate = null, totalReturn = 0;
-      trades.forEach((t, idx) => {
-        const ret = parseFloat(t.result.replace('%',''))/100;
-        returns.push(ret);
-        totalReturn += ret;
-        // Tarihleri bul
-        let dateStr = t.time.split(' ')[0].replace(/\./g,'-');
-        let dateObj = new Date('20'+dateStr.split('-').reverse().join('-'));
-        if (!isNaN(dateObj)) {
-          if (!firstDate || dateObj < firstDate) firstDate = dateObj;
-          if (!lastDate || dateObj > lastDate) lastDate = dateObj;
-        }
-        if (t.reason === 'TP') win++;
-        if (t.sl && t.tp && t.entry) {
-          let entry = parseFloat(t.entry), sl = parseFloat(t.sl), tp = parseFloat(t.tp);
-          if (entry && sl && tp) {
-            let rr = Math.abs((tp-entry)/(entry-sl));
-            if (isFinite(rr) && rr>0) { rrSum += rr; rrCount++; }
-          }
-        }
-        // Equity
-        let eq = parseFloat(t.equity);
-        if (!isNaN(eq)) equity.push(eq);
-        // Monthly/Weekly
-        let date = t.time.split(' ')[0].replace(/\./g,'-');
-        let dateObj2 = new Date('20'+date.split('-').reverse().join('-'));
-        let ym = dateObj2.getFullYear()+'-'+(dateObj2.getMonth()+1);
-        let yw = dateObj2.getFullYear()+'-W'+getWeekNumber(dateObj2);
-        monthReturns[ym] = (monthReturns[ym]||0) + ret;
-        weekReturns[yw] = (weekReturns[yw]||0) + ret;
-      });
-      // Max Drawdown (her noktadan sonraki minimuma oranla en büyük düşüş)
-      if (equity.length > 0) {
-        let peak = equity[0];
-        for (let i = 1; i < equity.length; i++) {
-          if (equity[i] > peak) peak = equity[i];
-          let dd = (peak - equity[i]) / peak;
-          if (dd > maxDD) maxDD = dd;
-        }
-      }
-      // Sharpe
-      let mean = returns.reduce((a,b)=>a+b,0)/n;
-      let std = Math.sqrt(returns.reduce((a,b)=>a+(b-mean)**2,0)/n);
-      let sharpe = std ? (mean/std*Math.sqrt(252)).toFixed(2) : '—';
-      // Win rate
-      let winRate = (win/n*100).toFixed(1)+'%';
-      // Avg R:R
-      let avgRR = rrCount ? (rrSum/rrCount).toFixed(2) : '—';
-      // Max DD
-      let maxDraw = maxDD ? (maxDD*100).toFixed(2)+'%' : '—';
-      // Monthly/Weekly net return (son ay/hafta)
-      let lastMonth = Object.keys(monthReturns).sort().pop();
-      let lastWeek = Object.keys(weekReturns).sort().pop();
-      let monthNet = lastMonth ? (monthReturns[lastMonth]*100).toFixed(2)+'%' : '—';
-      let weekNet = lastWeek ? (weekReturns[lastWeek]*100).toFixed(2)+'%' : '—';
-      // Toplam getiri ve gün sayısı
-      let totalReturnPct = (totalReturn*100).toFixed(2)+'%';
-      let dayCount = (firstDate && lastDate) ? (Math.round((lastDate-firstDate)/86400000)+1) : null;
-      return {
-        sharpe, winRate, avgRR, maxDraw, monthNet, weekNet, n,
-        totalReturn: totalReturnPct,
-        dayCount
-      };
-    }
-    function getWeekNumber(d) {
-      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-      let dayNum = d.getUTCDay() || 7;
-      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-      let yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-      return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
-    }
-    function renderStatsBar(stats) {
-      const bar = document.getElementById('stats-bar');
-      if (!stats) { bar.innerHTML = ''; return; }
-      const lang = (navigator.language || navigator.userLanguage || '').toLowerCase();
-      const isTR = lang.startsWith('tr');
-      const labels = isTR ? {
-        sharpe: 'Sharpe Ratio: Riske göre düzeltilmiş getiri oranı. Daha yüksek değer, daha iyi risk-ayarlı performans.',
-        win: 'Win Rate: Kazanılan işlemlerin yüzdesi. Yüksek oran, daha fazla başarılı işlem demektir.',
-        rr: 'Avg R:R: Ortalama Risk/Ödül oranı. 1\'den büyükse, kazançlar kayıplardan daha büyüktür.',
-        dd: 'Max Drawdown: En büyük sermaye düşüşü. Düşük olması daha iyidir.',
-        week: 'Weekly Return: Son haftanın toplam net getirisi.',
-        month: 'Monthly Return: Son ayın toplam net getirisi.',
-        n: '# of Trades: Toplam işlem sayısı.'
-      } : {
-        sharpe: 'Sharpe Ratio: Risk-adjusted return. Higher is better.',
-        win: 'Win Rate: Percentage of winning trades. Higher means more successful trades.',
-        rr: 'Avg R:R: Average Risk/Reward ratio. Above 1 means gains are larger than losses.',
-        dd: 'Max Drawdown: Largest equity drop. Lower is better.',
-        week: 'Weekly Return: Net return for the last week.',
-        month: 'Monthly Return: Net return for the last month.',
-        n: '# of Trades: Total number of trades.'
-      };
-      bar.innerHTML = `
+        <script>
+            function calcStats(trades) {
+                const n = trades.length;
+                if (n === 0) return null;
+                let win = 0,
+                    rrSum = 0,
+                    rrCount = 0,
+                    returns = [],
+                    equity = [],
+                    maxDD = 0;
+                let monthReturns = {},
+                    weekReturns = {};
+                let lastEquity = null;
+                let firstDate = null,
+                    lastDate = null,
+                    totalReturn = 0;
+                trades.forEach((t, idx) => {
+                    const ret = parseFloat(t.result.replace("%", "")) / 100;
+                    returns.push(ret);
+                    totalReturn += ret;
+                    // Tarihleri bul
+                    let dateStr = t.time.split(" ")[0].replace(/\./g, "-");
+                    let dateObj = new Date(
+                        "20" + dateStr.split("-").reverse().join("-"),
+                    );
+                    if (!isNaN(dateObj)) {
+                        if (!firstDate || dateObj < firstDate)
+                            firstDate = dateObj;
+                        if (!lastDate || dateObj > lastDate) lastDate = dateObj;
+                    }
+                    if (t.reason === "TP") win++;
+                    if (t.sl && t.tp && t.entry) {
+                        let entry = parseFloat(t.entry),
+                            sl = parseFloat(t.sl),
+                            tp = parseFloat(t.tp);
+                        if (entry && sl && tp) {
+                            let rr = Math.abs((tp - entry) / (entry - sl));
+                            if (isFinite(rr) && rr > 0) {
+                                rrSum += rr;
+                                rrCount++;
+                            }
+                        }
+                    }
+                    // Equity
+                    let eq = parseFloat(t.equity);
+                    if (!isNaN(eq)) equity.push(eq);
+                    // Monthly/Weekly
+                    let date = t.time.split(" ")[0].replace(/\./g, "-");
+                    let dateObj2 = new Date(
+                        "20" + date.split("-").reverse().join("-"),
+                    );
+                    let ym =
+                        dateObj2.getFullYear() +
+                        "-" +
+                        (dateObj2.getMonth() + 1);
+                    let yw =
+                        dateObj2.getFullYear() + "-W" + getWeekNumber(dateObj2);
+                    monthReturns[ym] = (monthReturns[ym] || 0) + ret;
+                    weekReturns[yw] = (weekReturns[yw] || 0) + ret;
+                });
+                // Max Drawdown (her noktadan sonraki minimuma oranla en büyük düşüş)
+                if (equity.length > 0) {
+                    let peak = equity[0];
+                    for (let i = 1; i < equity.length; i++) {
+                        if (equity[i] > peak) peak = equity[i];
+                        let dd = (peak - equity[i]) / peak;
+                        if (dd > maxDD) maxDD = dd;
+                    }
+                }
+                // Sharpe
+                let mean = returns.reduce((a, b) => a + b, 0) / n;
+                let std = Math.sqrt(
+                    returns.reduce((a, b) => a + (b - mean) ** 2, 0) / n,
+                );
+                let sharpe = std
+                    ? ((mean / std) * Math.sqrt(252)).toFixed(2)
+                    : "—";
+                // Win rate
+                let winRate = ((win / n) * 100).toFixed(1) + "%";
+                // Avg R:R
+                let avgRR = rrCount ? (rrSum / rrCount).toFixed(2) : "—";
+                // Max DD
+                let maxDraw = maxDD ? (maxDD * 100).toFixed(2) + "%" : "—";
+                // Monthly/Weekly net return (son ay/hafta)
+                let lastMonth = Object.keys(monthReturns).sort().pop();
+                let lastWeek = Object.keys(weekReturns).sort().pop();
+                let monthNet = lastMonth
+                    ? (monthReturns[lastMonth] * 100).toFixed(2) + "%"
+                    : "—";
+                let weekNet = lastWeek
+                    ? (weekReturns[lastWeek] * 100).toFixed(2) + "%"
+                    : "—";
+                // Toplam getiri ve gün sayısı
+                let totalReturnPct = (totalReturn * 100).toFixed(2) + "%";
+                let dayCount =
+                    firstDate && lastDate
+                        ? Math.round((lastDate - firstDate) / 86400000) + 1
+                        : null;
+                return {
+                    sharpe,
+                    winRate,
+                    avgRR,
+                    maxDraw,
+                    monthNet,
+                    weekNet,
+                    n,
+                    totalReturn: totalReturnPct,
+                    dayCount,
+                };
+            }
+            function getWeekNumber(d) {
+                d = new Date(
+                    Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()),
+                );
+                let dayNum = d.getUTCDay() || 7;
+                d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+                let yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+                return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+            }
+            function renderStatsBar(stats) {
+                const bar = document.getElementById("stats-bar");
+                if (!stats) {
+                    bar.innerHTML = "";
+                    return;
+                }
+                const lang = (
+                    navigator.language ||
+                    navigator.userLanguage ||
+                    ""
+                ).toLowerCase();
+                const isTR = lang.startsWith("tr");
+                const labels = isTR
+                    ? {
+                          sharpe: "Sharpe Ratio: Riske göre düzeltilmiş getiri oranı. Daha yüksek değer, daha iyi risk-ayarlı performans.",
+                          win: "Win Rate: Kazanılan işlemlerin yüzdesi. Yüksek oran, daha fazla başarılı işlem demektir.",
+                          rr: "Avg R:R: Ortalama Risk/Ödül oranı. 1'den büyükse, kazançlar kayıplardan daha büyüktür.",
+                          dd: "Max Drawdown: En büyük sermaye düşüşü. Düşük olması daha iyidir.",
+                          week: "Weekly Return: Son haftanın toplam net getirisi.",
+                          month: "Monthly Return: Son ayın toplam net getirisi.",
+                          n: "# of Trades: Toplam işlem sayısı.",
+                      }
+                    : {
+                          sharpe: "Sharpe Ratio: Risk-adjusted return. Higher is better.",
+                          win: "Win Rate: Percentage of winning trades. Higher means more successful trades.",
+                          rr: "Avg R:R: Average Risk/Reward ratio. Above 1 means gains are larger than losses.",
+                          dd: "Max Drawdown: Largest equity drop. Lower is better.",
+                          week: "Weekly Return: Net return for the last week.",
+                          month: "Monthly Return: Net return for the last month.",
+                          n: "# of Trades: Total number of trades.",
+                      };
+                bar.innerHTML = `
         <div class="stat-box" data-info="${labels.sharpe}"><div class="stat-label">Sharpe Ratio</div><div class="stat-value stat-sharpe">${stats.sharpe}</div></div>
         <div class="stat-box" data-info="${labels.win}"><div class="stat-label">Win Rate</div><div class="stat-value stat-win">${stats.winRate}</div></div>
         <div class="stat-box" data-info="${labels.rr}"><div class="stat-label">Avg R:R</div><div class="stat-value stat-rr">${stats.avgRR}</div></div>
@@ -380,61 +513,131 @@
         <div class="stat-box" data-info="${labels.month}"><div class="stat-label">Monthly Return</div><div class="stat-value stat-month">${stats.monthNet}</div></div>
         <div class="stat-box" data-info="${labels.n}"><div class="stat-label"># of Trades</div><div class="stat-value stat-n">${stats.n}</div></div>
       `;
-    }
-    function parseTrades(data) {
-      return data.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n')
-        .filter(row => row.trim())
-        .map(row => {
-          const match = row.match(/^\[(.+?)\] (.+?) (SHORT|LONG) - Entry: (.+?), SL: (.+?), TP: (.+?), Exit: (.+?), Reason: (.+?), Result: (.+?), Equity: (.+?)$/);
-          if (match) {
-            const [, time, coin, direction, entry, sl, tp, exit, reason, result, equity] = match;
-            return {time, coin, direction, entry, sl, tp, exit, reason, result, equity};
-          }
-          return null;
-        }).filter(Boolean);
-    }
-
-    function loadTradesGeneric(csv, statsBarId, tableId, totalReturnBarId) {
-      fetch(csv, { cache: 'no-cache' })
-        .then(r => r.text())
-        .then(data => {
-          const trades = parseTrades(data);
-          const stats = calcStats(trades);
-          renderStatsBarTo(stats, statsBarId);
-          // Toplam getiri stat-box'u (always English)
-          if (totalReturnBarId && stats) {
-            const bar = document.getElementById(totalReturnBarId);
-            const lang = (navigator.language || navigator.userLanguage || '').toLowerCase();
-            const isTR = lang.startsWith('tr');
-            let label, info;
-            // Always show English label on button, but keep info localized
-            label = stats.dayCount ? `Total Return (${stats.dayCount} days)` : 'Total Return';
-            if (isTR) {
-              info = 'Toplam Getiri: Tüm işlemlerden elde edilen net yüzde getiri. Parantez içindeki sayı, bu getirinin kaç günde elde edildiğini gösterir.';
-            } else {
-              info = 'Total Return: Net percentage return from all trades. The number in parentheses shows over how many days this return was achieved.';
             }
-            // Total return değerini parse et ve rengini belirle
-            const returnValue = parseFloat(stats.totalReturn.replace('%', ''));
-            const valueColorClass = returnValue >= 0 ? 'stat-total-positive' : 'stat-total-negative';
-            
-            bar.innerHTML = `
-              <div class="stat-box stat-total stat-total-single transition" data-info="${info}">
+            function parseTrades(data) {
+                return data
+                    .trim()
+                    .replace(/\r\n/g, "\n")
+                    .replace(/\r/g, "\n")
+                    .split("\n")
+                    .filter((row) => row.trim())
+                    .map((row) => {
+                        const match = row.match(
+                            /^\[(.+?)\] (.+?) (SHORT|LONG) - Entry: (.+?), SL: (.+?), TP: (.+?), Exit: (.+?), Reason: (.+?), Result: (.+?), Equity: (.+?)$/,
+                        );
+                        if (match) {
+                            const [
+                                ,
+                                time,
+                                coin,
+                                direction,
+                                entry,
+                                sl,
+                                tp,
+                                exit,
+                                reason,
+                                result,
+                                equity,
+                            ] = match;
+                            return {
+                                time,
+                                coin,
+                                direction,
+                                entry,
+                                sl,
+                                tp,
+                                exit,
+                                reason,
+                                result,
+                                equity,
+                            };
+                        }
+                        return null;
+                    })
+                    .filter(Boolean);
+            }
+
+            function loadTradesGeneric(
+                csv,
+                statsBarId,
+                tableId,
+                totalReturnBarId,
+            ) {
+                fetch(csv, { cache: "no-cache" })
+                    .then((r) => r.text())
+                    .then((data) => {
+                        const trades = parseTrades(data);
+                        const stats = calcStats(trades);
+                        renderStatsBarTo(stats, statsBarId);
+                        // Toplam getiri stat-box'u (always English)
+                        if (totalReturnBarId && stats) {
+                            const bar =
+                                document.getElementById(totalReturnBarId);
+                            const lang = (
+                                navigator.language ||
+                                navigator.userLanguage ||
+                                ""
+                            ).toLowerCase();
+                            const isTR = lang.startsWith("tr");
+                            let label, info;
+                            // Always show English label on button, but keep info localized
+                            label = stats.dayCount
+                                ? `Total Return (${stats.dayCount} days)`
+                                : "Total Return";
+                            if (isTR) {
+                                info =
+                                    "Toplam Getiri: Tüm işlemlerden elde edilen net yüzde getiri. Parantez içindeki sayı, bu getirinin kaç günde elde edildiğini gösterir.";
+                            } else {
+                                info =
+                                    "Total Return: Net percentage return from all trades. The number in parentheses shows over how many days this return was achieved.";
+                            }
+                            // Total return değerini parse et ve rengini belirle
+                            const returnValue = parseFloat(
+                                stats.totalReturn.replace("%", ""),
+                            );
+                            const valueColorClass =
+                                returnValue >= 0
+                                    ? "stat-total-positive"
+                                    : "stat-total-negative";
+
+                            bar.innerHTML = `
+              <div class="stat-box stat-total stat-total-single" style="
+              transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+              transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+              transition-duration: 300ms;
+              " data-info="${info}">
                 <span class="stat-total-label">${label}:</span>
                 <span class="stat-total-value ${valueColorClass}">${stats.totalReturn}</span>
               </div>
             `;
-          }
-          const tbody = document.querySelector(`#${tableId} tbody`);
-          tbody.innerHTML = '';
-          trades.slice().reverse().forEach(t => {
-            let percent = parseFloat(t.result.replace('%',''));
-            let profitStr = (percent > 0 ? '+' : '') + percent.toFixed(2) + '%';
-            const dirClass = t.direction === 'LONG' ? 'dir-long' : 'dir-short';
-            const reasonClass = t.reason === 'TP' ? 'reason-tp' : 'reason-sl';
-            const pnlClass = percent >= 0 ? 'pnl-pos' : 'pnl-neg';
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
+                        }
+                        const tbody = document.querySelector(
+                            `#${tableId} tbody`,
+                        );
+                        tbody.innerHTML = "";
+                        trades
+                            .slice()
+                            .reverse()
+                            .forEach((t) => {
+                                let percent = parseFloat(
+                                    t.result.replace("%", ""),
+                                );
+                                let profitStr =
+                                    (percent > 0 ? "+" : "") +
+                                    percent.toFixed(2) +
+                                    "%";
+                                const dirClass =
+                                    t.direction === "LONG"
+                                        ? "dir-long"
+                                        : "dir-short";
+                                const reasonClass =
+                                    t.reason === "TP"
+                                        ? "reason-tp"
+                                        : "reason-sl";
+                                const pnlClass =
+                                    percent >= 0 ? "pnl-pos" : "pnl-neg";
+                                const tr = document.createElement("tr");
+                                tr.innerHTML = `
               <td class="time-cell">${t.time}</td>
               <td>${t.coin}</td>
               <td class="${dirClass}">${t.direction}</td>
@@ -446,39 +649,52 @@
               <td class="${pnlClass}">${profitStr}</td>
               <td>${t.equity}</td>
             `;
-            tbody.appendChild(tr);
-          });
-        })
-        .catch(() => {
-          document.getElementById(statsBarId).innerHTML = '';
-          if (totalReturnBarId) document.getElementById(totalReturnBarId).innerHTML = '';
-          document.querySelector(`#${tableId} tbody`).innerHTML = '<tr><td colspan="10" style="color: #ef4444; padding: 20px;">CSV file not found</td></tr>';
-        });
-    }
+                                tbody.appendChild(tr);
+                            });
+                    })
+                    .catch(() => {
+                        document.getElementById(statsBarId).innerHTML = "";
+                        if (totalReturnBarId)
+                            document.getElementById(
+                                totalReturnBarId,
+                            ).innerHTML = "";
+                        document.querySelector(`#${tableId} tbody`).innerHTML =
+                            '<tr><td colspan="10" style="color: #ef4444; padding: 20px;">CSV file not found</td></tr>';
+                    });
+            }
 
-    function renderStatsBarTo(stats, id) {
-      const bar = document.getElementById(id);
-      if (!stats) { bar.innerHTML = ''; return; }
-      const lang = (navigator.language || navigator.userLanguage || '').toLowerCase();
-      const isTR = lang.startsWith('tr');
-      const labels = isTR ? {
-        sharpe: 'Sharpe Ratio: Riske göre düzeltilmiş getiri oranı. Daha yüksek değer, daha iyi risk-ayarlı performans.',
-        win: 'Win Rate: Kazanılan işlemlerin yüzdesi. Yüksek oran, daha fazla başarılı işlem demektir.',
-        rr: 'Avg R:R: Ortalama Risk/Ödül oranı. 1\'den büyükse, kazançlar kayıplardan daha büyüktür.',
-        dd: 'Max Drawdown: En büyük sermaye düşüşü. Düşük olması daha iyidir.',
-        week: 'Weekly Return: Son haftanın toplam net getirisi.',
-        month: 'Monthly Return: Son ayın toplam net getirisi.',
-        n: '# of Trades: Toplam işlem sayısı.'
-      } : {
-        sharpe: 'Sharpe Ratio: Risk-adjusted return. Higher is better.',
-        win: 'Win Rate: Percentage of winning trades. Higher means more successful trades.',
-        rr: 'Avg R:R: Average Risk/Reward ratio. Above 1 means gains are larger than losses.',
-        dd: 'Max Drawdown: Largest equity drop. Lower is better.',
-        week: 'Weekly Return: Net return for the last week.',
-        month: 'Monthly Return: Net return for the last month.',
-        n: '# of Trades: Total number of trades.'
-      };
-      bar.innerHTML = `
+            function renderStatsBarTo(stats, id) {
+                const bar = document.getElementById(id);
+                if (!stats) {
+                    bar.innerHTML = "";
+                    return;
+                }
+                const lang = (
+                    navigator.language ||
+                    navigator.userLanguage ||
+                    ""
+                ).toLowerCase();
+                const isTR = lang.startsWith("tr");
+                const labels = isTR
+                    ? {
+                          sharpe: "Sharpe Ratio: Riske göre düzeltilmiş getiri oranı. Daha yüksek değer, daha iyi risk-ayarlı performans.",
+                          win: "Win Rate: Kazanılan işlemlerin yüzdesi. Yüksek oran, daha fazla başarılı işlem demektir.",
+                          rr: "Avg R:R: Ortalama Risk/Ödül oranı. 1'den büyükse, kazançlar kayıplardan daha büyüktür.",
+                          dd: "Max Drawdown: En büyük sermaye düşüşü. Düşük olması daha iyidir.",
+                          week: "Weekly Return: Son haftanın toplam net getirisi.",
+                          month: "Monthly Return: Son ayın toplam net getirisi.",
+                          n: "# of Trades: Toplam işlem sayısı.",
+                      }
+                    : {
+                          sharpe: "Sharpe Ratio: Risk-adjusted return. Higher is better.",
+                          win: "Win Rate: Percentage of winning trades. Higher means more successful trades.",
+                          rr: "Avg R:R: Average Risk/Reward ratio. Above 1 means gains are larger than losses.",
+                          dd: "Max Drawdown: Largest equity drop. Lower is better.",
+                          week: "Weekly Return: Net return for the last week.",
+                          month: "Monthly Return: Net return for the last month.",
+                          n: "# of Trades: Total number of trades.",
+                      };
+                bar.innerHTML = `
         <div class="stat-box" data-info="${labels.sharpe}"><div class="stat-label">Sharpe Ratio</div><div class="stat-value stat-sharpe">${stats.sharpe}</div></div>
         <div class="stat-box" data-info="${labels.win}"><div class="stat-label">Win Rate</div><div class="stat-value stat-win">${stats.winRate}</div></div>
         <div class="stat-box" data-info="${labels.rr}"><div class="stat-label">Avg R:R</div><div class="stat-value stat-rr">${stats.avgRR}</div></div>
@@ -487,159 +703,178 @@
         <div class="stat-box" data-info="${labels.month}"><div class="stat-label">Monthly Return</div><div class="stat-value stat-month">${stats.monthNet}</div></div>
         <div class="stat-box" data-info="${labels.n}"><div class="stat-label"># of Trades</div><div class="stat-value stat-n">${stats.n}</div></div>
       `;
-    }
+            }
 
-    function loadAll() {
-      loadTradesGeneric('foddsignal.csv', 'stats-bar', 'tradeTable', 'total-return-bar');
-      loadTradesGeneric('foddv2.csv', 'stats-bar-v2', 'tradeTable-v2', 'total-return-bar-v2');
-    }
-    document.addEventListener('DOMContentLoaded', loadAll);
-    setInterval(loadAll, 5000);
-  </script>
+            function loadAll() {
+                loadTradesGeneric(
+                    "foddsignal.csv",
+                    "stats-bar",
+                    "tradeTable",
+                    "total-return-bar",
+                );
+                loadTradesGeneric(
+                    "foddv2.csv",
+                    "stats-bar-v2",
+                    "tradeTable-v2",
+                    "total-return-bar-v2",
+                );
+            }
+            document.addEventListener("DOMContentLoaded", loadAll);
+            setInterval(loadAll, 5000);
+        </script>
 
-  <style>
-    .info-popup {
-      position: fixed;
-      z-index: 9999;
-      background: #23272F;
-      color: #eaeaea;
-      border-radius: 10px;
-      box-shadow: 0 4px 24px #000a;
-      padding: 16px 18px;
-      font-size: 1.05em;
-      max-width: 320px;
-      min-width: 180px;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.18s;
-      left: 0;
-      top: 0;
-    }
-    .stat-total {
-      color: #d1caff !important;
-      background: linear-gradient(135deg, #23243a 80%, #4f46e5 100%) !important;
-      border-color: #3b3b5c !important;
-      box-shadow: 0 3px 16px #4f46e533, 0 1.5px 0 #23243a !important;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: row;
-      min-height: 48px;
-      height: 52px;
-      max-height: 60px;
-      min-width: 320px;
-      max-width: 600px;
-      padding: 0 32px;
-      font-size: 1.15em;
-      margin-bottom: 0;
-      gap: 18px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      transition: background 0.18s, color 0.18s;
-    }
-    .stat-total-single {
-      padding: 0 36px;
-      height: 52px;
-      min-height: 48px;
-      max-height: 60px;
-      border-radius: 14px;
-    }
-    .stat-total-label {
-      color: #c7bfff !important;
-      opacity: 0.92;
-      font-size: 1.09em;
-      font-weight: 500;
-      margin-right: 12px;
-      letter-spacing: 0.5px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .stat-total-value {
-      color: #f3f3ff !important;
-      font-weight: bold;
-      font-size: 1.26em;
-      margin-left: 8px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .stat-total-positive {
-      color: #22c55e !important;
-      text-shadow: 0 1px 8px #22c55e88;
-    }
-    .stat-total-negative {
-      color: #ef4444 !important;
-      text-shadow: 0 1px 8px #ef444488;
-    }
-  </style>
+        <style>
+            .info-popup {
+                position: fixed;
+                z-index: 9999;
+                background: #23272f;
+                color: #eaeaea;
+                border-radius: 10px;
+                box-shadow: 0 4px 24px #000a;
+                padding: 16px 18px;
+                font-size: 1.05em;
+                max-width: 320px;
+                min-width: 180px;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.18s;
+                left: 0;
+                top: 0;
+            }
+            .stat-total {
+                color: #d1caff !important;
+                background: linear-gradient(
+                    135deg,
+                    #23243a 80%,
+                    #4f46e5 100%
+                ) !important;
+                border-color: #3b3b5c !important;
+                box-shadow:
+                    0 3px 16px #4f46e533,
+                    0 1.5px 0 #23243a !important;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: row;
+                min-height: 48px;
+                height: 52px;
+                max-height: 60px;
+                min-width: 320px;
+                max-width: 600px;
+                padding: 0 32px;
+                font-size: 1.15em;
+                margin-bottom: 0;
+                gap: 18px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                transition:
+                    background 0.18s,
+                    color 0.18s;
+            }
+            .stat-total-single {
+                padding: 0 36px;
+                height: 52px;
+                min-height: 48px;
+                max-height: 60px;
+                border-radius: 14px;
+            }
+            .stat-total-label {
+                color: #c7bfff !important;
+                opacity: 0.92;
+                font-size: 1.09em;
+                font-weight: 500;
+                margin-right: 12px;
+                letter-spacing: 0.5px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .stat-total-value {
+                color: #f3f3ff !important;
+                font-weight: bold;
+                font-size: 1.26em;
+                margin-left: 8px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .stat-total-positive {
+                color: #22c55e !important;
+                text-shadow: 0 1px 8px #22c55e88;
+            }
+            .stat-total-negative {
+                color: #ef4444 !important;
+                text-shadow: 0 1px 8px #ef444488;
+            }
+        </style>
 
-  <div id="info-popup" class="info-popup" style="display:none"></div>
+        <div id="info-popup" class="info-popup" style="display: none"></div>
 
-  <script>
-    // Info popup for stat-boxes
-    document.addEventListener('DOMContentLoaded', function() {
-      const popup = document.getElementById('info-popup');
-      function showPopup(text, x, y) {
-        popup.textContent = text;
-        popup.style.display = 'block';
-        popup.style.opacity = '0';
-        popup.style.pointerEvents = 'auto';
-        // Ölçüm için önce görünür yap
-        popup.style.left = '0px';
-        popup.style.top = '0px';
-        // Genişlik ve yükseklik ölç
-        const popupRect = popup.getBoundingClientRect();
-        const winW = window.innerWidth;
-        const winH = window.innerHeight;
-        let left = x;
-        let top = y;
-        // Sağdan taşarsa sola kaydır
-        if (left + popupRect.width > winW - 8) {
-          left = winW - popupRect.width - 8;
-        }
-        // Soldan taşarsa sağa kaydır
-        if (left < 8) {
-          left = 8;
-        }
-        // Alttan taşarsa yukarı al
-        if (top + popupRect.height > winH - 8) {
-          top = y - popupRect.height - 24;
-        }
-        // Yukarıdan taşarsa aşağı al
-        if (top < 8) {
-          top = 8;
-        }
-        popup.style.left = left + 'px';
-        popup.style.top = top + 'px';
-        popup.style.opacity = '1';
-      }
-      function hidePopup() {
-        popup.style.opacity = '0';
-        popup.style.pointerEvents = 'none';
-        popup.style.display = 'none';
-      }
-      document.addEventListener('click', function(e) {
-        const statBox = e.target.closest && e.target.closest('.stat-box');
-        if (statBox && statBox.dataset.info) {
-          const rect = statBox.getBoundingClientRect();
-          let x = rect.left + rect.width/2 - 160; // Popup genişliğinin yarısı kadar sola kaydır
-          let y = rect.bottom + 12; // Kutunun hemen altında
-          
-          // Eğer popup ekranın altından taşarsa, kutunun üstüne al
-          if (y + 100 > window.innerHeight) {
-            y = rect.top - 70;
-          }
-          
-          showPopup(statBox.dataset.info, x, y);
-        } else {
-          hidePopup();
-        }
-      });
-      window.addEventListener('scroll', hidePopup);
-      window.addEventListener('resize', hidePopup);
-    });
-  </script>
-</body>
+        <script>
+            // Info popup for stat-boxes
+            document.addEventListener("DOMContentLoaded", function () {
+                const popup = document.getElementById("info-popup");
+                function showPopup(text, x, y) {
+                    popup.textContent = text;
+                    popup.style.display = "block";
+                    popup.style.opacity = "0";
+                    popup.style.pointerEvents = "auto";
+                    // Ölçüm için önce görünür yap
+                    popup.style.left = "0px";
+                    popup.style.top = "0px";
+                    // Genişlik ve yükseklik ölç
+                    const popupRect = popup.getBoundingClientRect();
+                    const winW = window.innerWidth;
+                    const winH = window.innerHeight;
+                    let left = x;
+                    let top = y;
+                    // Sağdan taşarsa sola kaydır
+                    if (left + popupRect.width > winW - 8) {
+                        left = winW - popupRect.width - 8;
+                    }
+                    // Soldan taşarsa sağa kaydır
+                    if (left < 8) {
+                        left = 8;
+                    }
+                    // Alttan taşarsa yukarı al
+                    if (top + popupRect.height > winH - 8) {
+                        top = y - popupRect.height - 24;
+                    }
+                    // Yukarıdan taşarsa aşağı al
+                    if (top < 8) {
+                        top = 8;
+                    }
+                    popup.style.left = left + "px";
+                    popup.style.top = top + "px";
+                    popup.style.opacity = "1";
+                }
+                function hidePopup() {
+                    popup.style.opacity = "0";
+                    popup.style.pointerEvents = "none";
+                    popup.style.display = "none";
+                }
+                document.addEventListener("click", function (e) {
+                    const statBox =
+                        e.target.closest && e.target.closest(".stat-box");
+                    if (statBox && statBox.dataset.info) {
+                        const rect = statBox.getBoundingClientRect();
+                        let x = rect.left + rect.width / 2 - 160; // Popup genişliğinin yarısı kadar sola kaydır
+                        let y = rect.bottom + 12; // Kutunun hemen altında
+
+                        // Eğer popup ekranın altından taşarsa, kutunun üstüne al
+                        if (y + 100 > window.innerHeight) {
+                            y = rect.top - 70;
+                        }
+
+                        showPopup(statBox.dataset.info, x, y);
+                    } else {
+                        hidePopup();
+                    }
+                });
+                window.addEventListener("scroll", hidePopup);
+                window.addEventListener("resize", hidePopup);
+            });
+        </script>
+    </body>
 </html>
