@@ -156,7 +156,7 @@
             <a href="https://x.com/FODDSIGNAL" target="_blank" rel="noopener" title="Twitter/X" style="display: flex; align-items: center; text-decoration: none;">
                 <svg width="26" height="26" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
                   <rect width="120" height="120" rx="24" fill="#181A20"/>
-                  <path d="M85.5 34H98L72.5 62.5L101 98H80.5L62.5 76.5L42.5 98H30L57.5 67.5L30 34H51L66 53L85.5 34ZM81.5 91H87.5L54.5 41H48.5L81.5 91Z" fill="#eaeaea"/>
+                  <path d="M86 32H98L72 60.5L101 98H81L62 76.5L42 98H22L50.5 66.5L22 32H43L60.5 52.5L78 32H86ZM81 91H87L54 41H48L81 91Z" fill="#eaeaea"/>
                 </svg>
             </a>
             <a href="https://t.me/foddv1" target="_blank" rel="noopener" title="Telegram" style="display: flex; align-items: center; text-decoration: none;">
@@ -326,16 +326,15 @@
                 color: #ef4444;
             }
             .stat-month {
-                color: #3b82f6; /* mavi */
+                color: #3b82f6;
             }
             .stat-week {
-                color: #f59e42; /* turuncu */
+                color: #f59e42;
             }
             .stat-n {
                 color: #eaeaea;
             }
 
-            /* Stat kutularının tek satırda kalmasını sağla */
             @media (max-width: 1100px) {
                 .stats-bar {
                     flex-wrap: wrap;
@@ -348,13 +347,24 @@
             }
             @media (max-width: 800px) {
                 .stats-bar {
-                    flex-direction: column;
+                    flex-wrap: wrap;
+                    flex-direction: row;
                     gap: 10px;
                 }
                 .stat-box {
-                    width: 100%;
-                    min-width: 0;
-                    max-width: 100%;
+                    flex: 1 1 45%;
+                    min-width: 140px;
+                    max-width: calc(50% - 12px);
+                    width: calc(50% - 12px);
+                    margin-bottom: 8px;
+                }
+                @media (max-width: 500px) {
+                    .stat-box {
+                        flex: 1 1 30%;
+                        min-width: 100px;
+                        max-width: calc(33.33% - 10px);
+                        width: calc(33.33% - 10px);
+                    }
                 }
             }
         </style>
