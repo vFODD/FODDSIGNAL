@@ -793,7 +793,7 @@
             .stat-total-value {
                 color: #f3f3ff !important;
                 font-weight: bold;
-                font-size: 1.26em;
+                font-size: 1.38em;
                 margin-left: 8px;
                 white-space: nowrap;
                 overflow: hidden;
@@ -801,11 +801,17 @@
             }
             .stat-total-positive {
                 color: #22c55e !important;
-                text-shadow: 0 1px 8px #22c55e88;
+                text-shadow:
+                    0 0 6px #22c55e66,
+                    0 2px 12px #22c55e33,
+                    0 1px 0 #1a3d2a44;
             }
             .stat-total-negative {
                 color: #ef4444 !important;
-                text-shadow: 0 1px 8px #ef444488;
+                text-shadow:
+                    0 0 6px #ef444466,
+                    0 2px 12px #ef444433,
+                    0 1px 0 #3d1a1a44;
             }
             @media (max-width: 600px) {
                 .table-container {
@@ -835,8 +841,12 @@
                     align-items: center !important;
                     justify-content: center !important;
                 }
-                .stat-total-label, .stat-total-value {
-                    font-size: 1.13em !important;
+                .stat-total-label {
+                    font-size: 0.98em !important;
+                    margin: 0 !important;
+                }
+                .stat-total-value {
+                    font-size: 1.35em !important;
                     margin: 0 !important;
                 }
             }
