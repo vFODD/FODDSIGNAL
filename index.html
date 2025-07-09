@@ -809,6 +809,17 @@
             }
             /* Mobil uyum için total return butonu */
             @media (max-width: 600px) {
+                .table-container {
+                    padding-left: 4vw !important;
+                    padding-right: 2vw !important;
+                    padding-top: 12px !important;
+                    padding-bottom: 10px !important;
+                    width: 100vw !important;
+                    box-sizing: border-box !important;
+                }
+                table {
+                    min-width: 600px;
+                }
                 .stat-total, .stat-total-single {
                     min-width: 0 !important;
                     max-width: 98vw !important;
@@ -820,7 +831,7 @@
                     max-height: none !important;
                     flex-direction: column !important;
                     gap: 6px !important;
-                    align-items: stretch !important;
+                    align-items: center !important;
                     justify-content: center !important;
                 }
                 .stat-total-label, .stat-total-value {
