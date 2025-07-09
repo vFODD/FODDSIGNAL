@@ -152,7 +152,30 @@
         </style>
     </head>
     <body>
-        <div class="social-links" style="position: absolute; top: 22px; right: 32px; z-index: 100; display: flex; gap: 18px;">
+        <div class="social-links">
+        <style>
+            .social-links {
+                position: absolute;
+                top: 22px;
+                right: 32px;
+                z-index: 100;
+                display: flex;
+                gap: 18px;
+            }
+            @media (max-width: 600px) {
+                .social-links {
+                    position: static !important;
+                    justify-content: center;
+                    margin: 18px 0 0 0;
+                    width: 100vw;
+                    gap: 12px;
+                }
+                .social-links a svg {
+                    width: 26px !important;
+                    height: 26px !important;
+                }
+            }
+        </style>
             <a href="https://x.com/FODDSIGNAL" target="_blank" rel="noopener" title="Twitter/X" style="display: flex; align-items: center; text-decoration: none;">
                 <svg width="32" height="32" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
                   <rect width="120" height="120" rx="24" fill="#181A20"/>
@@ -164,9 +187,9 @@
             </a>
         </div>
         <div class="strategy-block" style="position: relative;">
-            <div class="strategy-header">
-                <img src="v.png" alt="FODDSIGNAL" class="strategy-img" />
-                <h2>FODDSIGNAL</h2>
+            <div class="strategy-header" style="padding-left: 18px;">
+                <img src="v.png" alt="FODDSIGNAL" class="strategy-img" style="margin-right: 18px; margin-left: 0; vertical-align: middle; align-self: center;" />
+                <h2 style="margin-left: 0; display: flex; align-items: center; height: 54px;">FODDSIGNAL</h2>
             </div>
             <div id="stats-bar" class="stats-bar"></div>
             <div class="table-container">
