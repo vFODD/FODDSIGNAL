@@ -187,6 +187,7 @@
                     </thead>
                     <tbody></tbody>
                 </table>
+                <div id="tradeCards" class="trade-cards"></div>
             </div>
             <div
                 id="total-return-bar"
@@ -221,7 +222,83 @@
                     </thead>
                     <tbody></tbody>
                 </table>
+                <div id="tradeCards-v2" class="trade-cards"></div>
             </div>
+        <style>
+            @media (max-width: 600px) {
+                .trade-cards {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 14px;
+                    margin-top: 10px;
+                }
+                .trade-card {
+                    background: #181a20;
+                    border-radius: 12px;
+                    box-shadow: 0 2px 12px #0005;
+                    padding: 14px 12px 10px 12px;
+                    color: #eaeaea;
+                    font-size: 0.98em;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                }
+                .trade-card-row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .trade-card-label {
+                    font-weight: 600;
+                    opacity: 0.7;
+                    font-size: 0.97em;
+                }
+                .trade-card-value {
+                    font-weight: 500;
+                    font-size: 1em;
+                    text-align: right;
+                }
+                .trade-card .dir-long, .trade-card .pnl-pos, .trade-card .reason-tp { color: #78b159; font-weight: bold; }
+                .trade-card .dir-short, .trade-card .pnl-neg, .trade-card .reason-sl { color: #dd2e44; font-weight: bold; }
+            }
+        </style>
+        <script>
+            // Mobilde tabloyu kart olarak göster
+            function renderTradeCards(trades, containerId) {
+                const container = document.getElementById(containerId);
+                if (!container) return;
+                if (window.innerWidth > 600) {
+                    container.innerHTML = '';
+                    container.style.display = 'none';
+                    return;
+                }
+                container.style.display = 'flex';
+                container.innerHTML = '';
+                trades.slice().reverse().forEach(t => {
+                    let percent = parseFloat(t.result.replace('%', ''));
+                    let profitStr = (percent > 0 ? '+' : '') + percent.toFixed(2) + '%';
+                    const dirClass = t.direction === 'LONG' ? 'dir-long' : 'dir-short';
+                    const reasonClass = t.reason === 'TP' ? 'reason-tp' : 'reason-sl';
+                    const pnlClass = percent >= 0 ? 'pnl-pos' : 'pnl-neg';
+                    const card = document.createElement('div');
+                    card.className = 'trade-card';
+                    card.innerHTML = `
+                        <div class="trade-card-row"><span class="trade-card-label">Time</span><span class="trade-card-value">${t.time}</span></div>
+                        <div class="trade-card-row"><span class="trade-card-label">Coin</span><span class="trade-card-value">${t.coin}</span></div>
+                        <div class="trade-card-row"><span class="trade-card-label">L/S</span><span class="trade-card-value ${dirClass}">${t.direction}</span></div>
+                        <div class="trade-card-row"><span class="trade-card-label">Entry</span><span class="trade-card-value">${t.entry}</span></div>
+                        <div class="trade-card-row"><span class="trade-card-label">SL</span><span class="trade-card-value">${t.sl}</span></div>
+                        <div class="trade-card-row"><span class="trade-card-label">TP</span><span class="trade-card-value">${t.tp}</span></div>
+                        <div class="trade-card-row"><span class="trade-card-label">Exit</span><span class="trade-card-value">${t.exit}</span></div>
+                        <div class="trade-card-row"><span class="trade-card-label">Reason</span><span class="trade-card-value ${reasonClass}">${t.reason}</span></div>
+                        <div class="trade-card-row"><span class="trade-card-label">PnL</span><span class="trade-card-value ${pnlClass}">${profitStr}</span></div>
+                        <div class="trade-card-row"><span class="trade-card-label">Equity</span><span class="trade-card-value">${t.equity}</span></div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+        </script>
             <div
                 id="total-return-bar-v2"
                 style="
@@ -594,37 +671,19 @@
                         const trades = parseTrades(data);
                         const stats = calcStats(trades);
                         renderStatsBarTo(stats, statsBarId);
-                        
                         if (totalReturnBarId && stats) {
-                            const bar =
-                                document.getElementById(totalReturnBarId);
-                            const lang = (
-                                navigator.language ||
-                                navigator.userLanguage ||
-                                ""
-                            ).toLowerCase();
+                            const bar = document.getElementById(totalReturnBarId);
+                            const lang = (navigator.language || navigator.userLanguage || "").toLowerCase();
                             const isTR = lang.startsWith("tr");
                             let label, info;
-                            
-                            label = stats.dayCount
-                                ? `Total Return (${stats.dayCount} days)`
-                                : "Total Return";
+                            label = stats.dayCount ? `Total Return (${stats.dayCount} days)` : "Total Return";
                             if (isTR) {
-                                info =
-                                    "Toplam Getiri: Tüm işlemlerden elde edilen net yüzde getiri. Parantez içindeki sayı, bu getirinin kaç günde elde edildiğini gösterir.";
+                                info = "Toplam Getiri: Tüm işlemlerden elde edilen net yüzde getiri. Parantez içindeki sayı, bu getirinin kaç günde elde edildiğini gösterir.";
                             } else {
-                                info =
-                                    "Total Return: Net percentage return from all trades. The number in parentheses shows over how many days this return was achieved.";
+                                info = "Total Return: Net percentage return from all trades. The number in parentheses shows over how many days this return was achieved.";
                             }
-                            
-                            const returnValue = parseFloat(
-                                stats.totalReturn.replace("%", ""),
-                            );
-                            const valueColorClass =
-                                returnValue >= 0
-                                    ? "stat-total-positive"
-                                    : "stat-total-negative";
-
+                            const returnValue = parseFloat(stats.totalReturn.replace("%", ""));
+                            const valueColorClass = returnValue >= 0 ? "stat-total-positive" : "stat-total-negative";
                             bar.innerHTML = `
               <div class="stat-box stat-total stat-total-single" style="
               transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
@@ -636,33 +695,16 @@
               </div>
             `;
                         }
-                        const tbody = document.querySelector(
-                            `#${tableId} tbody`,
-                        );
+                        const tbody = document.querySelector(`#${tableId} tbody`);
                         tbody.innerHTML = "";
-                        trades
-                            .slice()
-                            .reverse()
-                            .forEach((t) => {
-                                let percent = parseFloat(
-                                    t.result.replace("%", ""),
-                                );
-                                let profitStr =
-                                    (percent > 0 ? "+" : "") +
-                                    percent.toFixed(2) +
-                                    "%";
-                                const dirClass =
-                                    t.direction === "LONG"
-                                        ? "dir-long"
-                                        : "dir-short";
-                                const reasonClass =
-                                    t.reason === "TP"
-                                        ? "reason-tp"
-                                        : "reason-sl";
-                                const pnlClass =
-                                    percent >= 0 ? "pnl-pos" : "pnl-neg";
-                                const tr = document.createElement("tr");
-                                tr.innerHTML = `
+                        trades.slice().reverse().forEach((t) => {
+                            let percent = parseFloat(t.result.replace("%", ""));
+                            let profitStr = (percent > 0 ? "+" : "") + percent.toFixed(2) + "%";
+                            const dirClass = t.direction === "LONG" ? "dir-long" : "dir-short";
+                            const reasonClass = t.reason === "TP" ? "reason-tp" : "reason-sl";
+                            const pnlClass = percent >= 0 ? "pnl-pos" : "pnl-neg";
+                            const tr = document.createElement("tr");
+                            tr.innerHTML = `
               <td class="time-cell">${t.time}</td>
               <td>${t.coin}</td>
               <td class="${dirClass}">${t.direction}</td>
@@ -674,17 +716,27 @@
               <td class="${pnlClass}">${profitStr}</td>
               <td>${t.equity}</td>
             `;
-                                tbody.appendChild(tr);
-                            });
+                            tbody.appendChild(tr);
+                        });
+                        // Mobil kart görünümü
+                        if (tableId === "tradeTable") {
+                            renderTradeCards(trades, "tradeCards");
+                        } else if (tableId === "tradeTable-v2") {
+                            renderTradeCards(trades, "tradeCards-v2");
+                        }
                     })
                     .catch(() => {
                         document.getElementById(statsBarId).innerHTML = "";
                         if (totalReturnBarId)
-                            document.getElementById(
-                                totalReturnBarId,
-                            ).innerHTML = "";
+                            document.getElementById(totalReturnBarId).innerHTML = "";
                         document.querySelector(`#${tableId} tbody`).innerHTML =
                             '<tr><td colspan="10" style="color: #ef4444; padding: 20px;">CSV file not found</td></tr>';
+                        // Mobil kartları da temizle
+                        if (tableId === "tradeTable") {
+                            document.getElementById("tradeCards").innerHTML = "";
+                        } else if (tableId === "tradeTable-v2") {
+                            document.getElementById("tradeCards-v2").innerHTML = "";
+                        }
                     });
             }
 
