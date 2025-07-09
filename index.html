@@ -374,7 +374,7 @@
                     const ret = parseFloat(t.result.replace("%", "")) / 100;
                     returns.push(ret);
                     totalReturn += ret;
-                    // Tarihleri bul
+                    
                     let dateStr = t.time.split(" ")[0].replace(/\./g, "-");
                     let dateObj = new Date(
                         "20" + dateStr.split("-").reverse().join("-"),
@@ -397,10 +397,10 @@
                             }
                         }
                     }
-                    // Equity
+                    
                     let eq = parseFloat(t.equity);
                     if (!isNaN(eq)) equity.push(eq);
-                    // Monthly/Weekly
+                    
                     let date = t.time.split(" ")[0].replace(/\./g, "-");
                     let dateObj2 = new Date(
                         "20" + date.split("-").reverse().join("-"),
@@ -414,7 +414,7 @@
                     monthReturns[ym] = (monthReturns[ym] || 0) + ret;
                     weekReturns[yw] = (weekReturns[yw] || 0) + ret;
                 });
-                // Max Drawdown (her noktadan sonraki minimuma oranla en büyük düşüş)
+                
                 if (equity.length > 0) {
                     let peak = equity[0];
                     for (let i = 1; i < equity.length; i++) {
@@ -423,7 +423,7 @@
                         if (dd > maxDD) maxDD = dd;
                     }
                 }
-                // Sharpe
+                
                 let mean = returns.reduce((a, b) => a + b, 0) / n;
                 let std = Math.sqrt(
                     returns.reduce((a, b) => a + (b - mean) ** 2, 0) / n,
@@ -431,13 +431,13 @@
                 let sharpe = std
                     ? ((mean / std) * Math.sqrt(252)).toFixed(2)
                     : "—";
-                // Win rate
+                
                 let winRate = ((win / n) * 100).toFixed(1) + "%";
-                // Avg R:R
+                
                 let avgRR = rrCount ? (rrSum / rrCount).toFixed(2) : "—";
-                // Max DD
+                
                 let maxDraw = maxDD ? (maxDD * 100).toFixed(2) + "%" : "—";
-                // Monthly/Weekly net return (son ay/hafta)
+                
                 let lastMonth = Object.keys(monthReturns).sort().pop();
                 let lastWeek = Object.keys(weekReturns).sort().pop();
                 let monthNet = lastMonth
@@ -446,7 +446,7 @@
                 let weekNet = lastWeek
                     ? (weekReturns[lastWeek] * 100).toFixed(2) + "%"
                     : "—";
-                // Toplam getiri ve gün sayısı
+                
                 let totalReturnPct = (totalReturn * 100).toFixed(2) + "%";
                 let dayCount =
                     firstDate && lastDate
@@ -569,7 +569,7 @@
                         const trades = parseTrades(data);
                         const stats = calcStats(trades);
                         renderStatsBarTo(stats, statsBarId);
-                        // Toplam getiri stat-box'u (always English)
+                        
                         if (totalReturnBarId && stats) {
                             const bar =
                                 document.getElementById(totalReturnBarId);
@@ -580,7 +580,7 @@
                             ).toLowerCase();
                             const isTR = lang.startsWith("tr");
                             let label, info;
-                            // Always show English label on button, but keep info localized
+                            
                             label = stats.dayCount
                                 ? `Total Return (${stats.dayCount} days)`
                                 : "Total Return";
@@ -591,7 +591,7 @@
                                 info =
                                     "Total Return: Net percentage return from all trades. The number in parentheses shows over how many days this return was achieved.";
                             }
-                            // Total return değerini parse et ve rengini belirle
+                            
                             const returnValue = parseFloat(
                                 stats.totalReturn.replace("%", ""),
                             );
@@ -807,7 +807,6 @@
                 color: #ef4444 !important;
                 text-shadow: 0 1px 8px #ef444488;
             }
-            /* Mobil uyum için total return butonu */
             @media (max-width: 600px) {
                 .table-container {
                     padding-left: 3vw !important;
@@ -827,7 +826,7 @@
                     max-width: 98vw !important;
                     width: 98vw !important;
                     padding: 14px 8px 10px 8px !important;
-                    font-size: 0.98em !important;
+                    font-size: 1.22em !important;
                     min-height: 56px !important;
                     height: auto !important;
                     max-height: none !important;
@@ -837,7 +836,7 @@
                     justify-content: center !important;
                 }
                 .stat-total-label, .stat-total-value {
-                    font-size: 1em !important;
+                    font-size: 1.13em !important;
                     margin: 0 !important;
                 }
             }
@@ -846,7 +845,7 @@
         <div id="info-popup" class="info-popup" style="display: none"></div>
 
         <script>
-            // Info popup for stat-boxes
+            
             document.addEventListener("DOMContentLoaded", function () {
                 const popup = document.getElementById("info-popup");
                 function showPopup(text, x, y) {
@@ -854,28 +853,28 @@
                     popup.style.display = "block";
                     popup.style.opacity = "0";
                     popup.style.pointerEvents = "auto";
-                    // Ölçüm için önce görünür yap
+                    
                     popup.style.left = "0px";
                     popup.style.top = "0px";
-                    // Genişlik ve yükseklik ölç
+                    
                     const popupRect = popup.getBoundingClientRect();
                     const winW = window.innerWidth;
                     const winH = window.innerHeight;
                     let left = x;
                     let top = y;
-                    // Sağdan taşarsa sola kaydır
+                    
                     if (left + popupRect.width > winW - 8) {
                         left = winW - popupRect.width - 8;
                     }
-                    // Soldan taşarsa sağa kaydır
+                    
                     if (left < 8) {
                         left = 8;
                     }
-                    // Alttan taşarsa yukarı al
+                    
                     if (top + popupRect.height > winH - 8) {
                         top = y - popupRect.height - 24;
                     }
-                    // Yukarıdan taşarsa aşağı al
+                    
                     if (top < 8) {
                         top = 8;
                     }
@@ -893,10 +892,10 @@
                         e.target.closest && e.target.closest(".stat-box");
                     if (statBox && statBox.dataset.info) {
                         const rect = statBox.getBoundingClientRect();
-                        let x = rect.left + rect.width / 2 - 160; // Popup genişliğinin yarısı kadar sola kaydır
-                        let y = rect.bottom + 12; // Kutunun hemen altında
+                        let x = rect.left + rect.width / 2 - 160;
+                        let y = rect.bottom + 12;
 
-                        // Eğer popup ekranın altından taşarsa, kutunun üstüne al
+                        
                         if (y + 100 > window.innerHeight) {
                             y = rect.top - 70;
                         }
