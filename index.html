@@ -4,36 +4,21 @@
         <meta charset="UTF-8" />
         <title>FODDSIGNAL TRADE LOGS</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta
-            name="description"
-            content="FODDSIGNAL & FODDv2 (PRO) - Crypto trading strategy logs, statistics, and performance metrics. View trade history, win rate, Sharpe ratio, drawdown, and more."
-        />
-        <meta
-            name="keywords"
-            content="FODDSIGNAL, FODDv2, crypto, trading, trade logs, statistics, Sharpe ratio, win rate, drawdown, risk reward, performance, equity, trading strategy"
-        />
+        <meta name="description" content="FODDSIGNAL & FODDv2 (PRO) - Crypto trading logs and performance stats." />
+        <meta name="keywords" content="FODDSIGNAL, FODDv2, crypto, trading, trade logs, statistics, Sharpe ratio, win rate, drawdown, risk reward, performance, equity, trading strategy" />
         <meta name="author" content="FODDSIGNAL" />
         <meta property="og:title" content="FODDSIGNAL TRADE LOGS" />
-        <meta
-            property="og:description"
-            content="View FODDSIGNAL & FODDv2 (PRO) crypto trading logs, stats, and performance metrics."
-        />
+        <meta property="og:description" content="FODDSIGNAL & FODDv2 (PRO) - Crypto trading logs and performance stats." />
         <meta property="og:type" content="website" />
-        <meta
-            property="og:image"
-            content="https://vfodd.github.io/FODDSIGNAL/og-image.png"
-        />
         <meta property="og:url" content="https://vfodd.github.io/FODDSIGNAL/" />
+        <meta property="og:image" content="https://vfodd.github.io/FODDSIGNAL/og-image.png" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="FODDSIGNAL TRADE LOGS" />
-        <meta
-            name="twitter:description"
-            content="FODDSIGNAL & FODDv2 (PRO) - Crypto trading logs and performance stats."
-        />
-        <meta
-            name="twitter:image"
-            content="https://vfodd.github.io/FODDSIGNAL/og-image.png"
-        />
+        <meta name="twitter:description" content="FODDSIGNAL & FODDv2 (PRO) - Crypto trading logs and performance stats." />
+        <meta name="twitter:image" content="https://vfodd.github.io/FODDSIGNAL/og-image.png" />
+        <meta name="twitter:image:src" content="https://vfodd.github.io/FODDSIGNAL/og-image.png" />
+        <meta name="twitter:site" content="@FODDSIGNAL" />
+        <meta name="twitter:creator" content="@FODDSIGNAL" />
         <link rel="icon" type="image/x-icon" href="favicon.ico" />
         <style>
             body {
@@ -193,6 +178,7 @@
                 style="
                     display: flex;
                     justify-content: center;
+                    align-items: center;
                     margin: 12px 0 24px 0;
                 "
             ></div>
@@ -227,6 +213,7 @@
                 style="
                     display: flex;
                     justify-content: center;
+                    align-items: center;
                     margin: 12px 0 24px 0;
                 "
             ></div>
@@ -583,8 +570,13 @@
                         renderStatsBarTo(stats, statsBarId);
                         
                         if (totalReturnBarId && stats) {
-                            const bar =
-                                document.getElementById(totalReturnBarId);
+                            const uniq = totalReturnBarId.replace(/[^a-zA-Z0-9]/g, "");
+                            const boxId = `total-return-box-${uniq}`;
+                            const iconId = `equity-graph-icon-${uniq}`;
+                            const modalId = `equity-modal-${uniq}`;
+                            const closeId = `close-equity-modal-${uniq}`;
+                            const chartId = `equity-chart-${uniq}`;
+                            const bar = document.getElementById(totalReturnBarId);
                             const lang = (
                                 navigator.language ||
                                 navigator.userLanguage ||
@@ -592,7 +584,6 @@
                             ).toLowerCase();
                             const isTR = lang.startsWith("tr");
                             let label, info;
-                            
                             label = stats.dayCount
                                 ? `Total Return (${stats.dayCount} days)`
                                 : "Total Return";
@@ -603,7 +594,6 @@
                                 info =
                                     "Total Return: Net percentage return from all trades. The number in parentheses shows over how many days this return was achieved.";
                             }
-                            
                             const returnValue = parseFloat(
                                 stats.totalReturn.replace("%", ""),
                             );
@@ -611,17 +601,331 @@
                                 returnValue >= 0
                                     ? "stat-total-positive"
                                     : "stat-total-negative";
-
                             bar.innerHTML = `
-              <div class="stat-box stat-total stat-total-single" style="
-              transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
-              transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-              transition-duration: 300ms;
-              " data-info="${info}">
-                <span class="stat-total-label">${label}:</span>
-                <span class="stat-total-value ${valueColorClass}">${stats.totalReturn}</span>
+              <div style="display: flex; align-items: center; gap: 0;">
+                <div class="stat-box stat-total stat-total-single" id="${boxId}" style="
+                  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+                  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+                  transition-duration: 300ms;">
+                  <span class="stat-total-label">${label}:</span>
+                  <span class="stat-total-value ${valueColorClass}">${stats.totalReturn}</span>
+                </div>
+                <span id="${iconId}" title="Show equity chart" style="margin-left:18px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 12px #0005;background:linear-gradient(135deg, #23243a 80%, #4f46e5 100%);border-radius:10px;padding:7px 10px;transition:transform 0.3s ease,box-shadow 0.3s ease,border 0.3s ease; border:2px solid #3b3b5c;">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" style="display:block;" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="3" width="24" height="20" rx="6" fill="#181a20" stroke="#4f46e5" stroke-width="1.7"/>
+                    <path d="M7 19L13 12L16 16L22 8" stroke="#06a091" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="7" cy="19" r="1.5" fill="#06a091"/>
+                    <circle cx="13" cy="12" r="1.5" fill="#06a091"/>
+                    <circle cx="16" cy="16" r="1.5" fill="#06a091"/>
+                    <circle cx="22" cy="8" r="1.5" fill="#06a091"/>
+                  </svg>
+                </span>
+              </div>
+              <div id="${modalId}" style="display:none;position:fixed;z-index:99999;left:0;top:0;width:100vw;height:100vh;background:rgba(18,20,30,0);align-items:center;justify-content:center;transition:background 0.3s ease;">
+                <div style="background:#0e1016;padding:32px 18px 18px 18px;border-radius:18px;box-shadow:0 8px 48px #000b;max-width:98vw;max-height:90vh;position:relative;min-width:340px;transform:scale(0.8);opacity:0;transition:transform 0.3s ease, opacity 0.3s ease;">
+                  <button id="${closeId}" style="position:absolute;top:10px;right:14px;background:none;border:none;color:#eaeaea;font-size:2em;cursor:pointer;">&times;</button>
+                  <div style="font-size:1.18em;font-weight:600;color:#c7bfff;margin-bottom:16px;text-align:center;letter-spacing:1px;">Equity Change Over Time</div>
+                  <canvas id="${chartId}" width="700" height="320" style="background:#181a20;border-radius:13px;max-width:92vw;max-height:54vh;box-shadow:0 2px 24px #0007;"></canvas>
+                </div>
               </div>
             `;
+                            setTimeout(() => {
+                              const box = document.getElementById(boxId);
+                              const icon = document.getElementById(iconId);
+                              const modal = document.getElementById(modalId);
+                              const closeBtn = document.getElementById(closeId);
+                              if (!box || !icon || !modal || !closeBtn) return;
+                              
+                              // Total Return box: show info popup only
+                              box.onclick = function(e) {
+                                // Prevent if clicking on the chart icon
+                                if (e.target === icon || icon.contains(e.target)) {
+                                  return;
+                                }
+                                // Show info popup
+                                const rect = box.getBoundingClientRect();
+                                let x = rect.left + rect.width / 2 - 160;
+                                let y = rect.bottom + 12;
+                                if (y + 100 > window.innerHeight) {
+                                  y = rect.top - 70;
+                                }
+                                const popup = document.getElementById("info-popup");
+                                if (popup) {
+                                  popup.textContent = info;
+                                  popup.style.display = "block";
+                                  popup.style.opacity = "0";
+                                  popup.style.left = x + "px";
+                                  popup.style.top = y + "px";
+                                  popup.style.opacity = "1";
+                                }
+                                e.stopPropagation();
+                              };
+                              
+                              // Chart icon: open modal only
+                              icon.onclick = function(e) {
+                                modal.style.display = "flex";
+                                const modalContent = modal.children[0];
+                                // Start animation
+                                setTimeout(() => {
+                                  modal.style.background = "rgba(18,20,30,0.92)";
+                                  modalContent.style.transform = "scale(1)";
+                                  modalContent.style.opacity = "1";
+                                }, 10);
+                                // Draw chart after animation starts
+                                setTimeout(() => {
+                                  drawEquityChart(trades, chartId);
+                                }, 150);
+                                e.stopPropagation();
+                              };
+                              
+                              closeBtn.onclick = function() {
+                                const modalContent = modal.children[0];
+                                // Animate out
+                                modal.style.background = "rgba(18,20,30,0)";
+                                modalContent.style.transform = "scale(0.8)";
+                                modalContent.style.opacity = "0";
+                                // Hide after animation
+                                setTimeout(() => {
+                                  modal.style.display = "none";
+                                }, 300);
+                              };
+                              modal.onclick = function(e) {
+                                if (e.target === modal) {
+                                  const modalContent = modal.children[0];
+                                  // Animate out
+                                  modal.style.background = "rgba(18,20,30,0)";
+                                  modalContent.style.transform = "scale(0.8)";
+                                  modalContent.style.opacity = "0";
+                                  // Hide after animation
+                                  setTimeout(() => {
+                                    modal.style.display = "none";
+                                  }, 300);
+                                }
+                              };
+                            }, 0);
+        function drawEquityChart(trades, canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let dayMap = {};
+            trades.forEach(t => {
+                let eq = parseFloat(t.equity);
+                let timeParts = t.time.split(" - ");
+                let closeDateStr = timeParts.length > 1 ? timeParts[1].split(" ")[0] : timeParts[0].split(" ")[0];
+                closeDateStr = closeDateStr.replace(/\./g, "-");
+                let dateObj = new Date("20" + closeDateStr.split("-").reverse().join("-"));
+                if (!isNaN(eq) && !isNaN(dateObj)) {
+                    let key = dateObj.toISOString().slice(0,10);
+                    dayMap[key] = {eq, date: new Date(key)};
+                }
+            });
+            let points = Object.values(dayMap).sort((a,b)=>a.date-b.date);
+            // Her zaman 100 equity ile başla
+            if (points.length > 0) {
+                let firstDate = new Date(points[0].date.getTime());
+                firstDate.setDate(firstDate.getDate() - 1);
+                points.unshift({ eq: 100, date: firstDate });
+            } else {
+                // Veri yoksa bugünden bir gün önce 100 equity ekle
+                let yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                points.push({ eq: 100, date: yesterday });
+            }
+            if (points.length < 2) {
+                ctx.fillStyle = "#eaeaea";
+                ctx.font = "18px 'Consolas', 'Menlo', 'monospace'";
+                ctx.fillText("Not enough data", 30, canvas.height/2);
+                return;
+            }
+            let minEq = Math.min(...points.map(p=>p.eq));
+            let maxEq = Math.max(...points.map(p=>p.eq));
+            
+            // Y ekseni: AKILLI dinamik ölçeklendirme - veri aralığına göre optimum etiket sayısı
+            // 1. min ve max'ı yüzdeye çevir (100 = 0%)
+            let minPct = ((minEq-100)/100)*100;
+            let maxPct = ((maxEq-100)/100)*100;
+            
+            // 2. Veri aralığını hesapla
+            let dataRange = maxPct - minPct;
+            
+            // 3. Veri aralığına göre akıllı adım seçimi
+            let step;
+            if (dataRange <= 3) step = 1;        // Çok küçük değişim: 1% adım
+            else if (dataRange <= 10) step = 2;  // Küçük değişim: 2% adım  
+            else if (dataRange <= 25) step = 5;  // Orta değişim: 5% adım
+            else if (dataRange <= 50) step = 10; // Büyük değişim: 10% adım
+            else step = 20;                      // Çok büyük değişim: 20% adım
+            
+            // 4. SADECE veri aralığına uygun margin ekle
+            let margin = Math.max(step * 0.5, dataRange * 0.1); // Adımın yarısı kadar margin
+            
+            // 5. Min/max'ı margin ile genişlet
+            let expandedMin = minPct - margin;
+            let expandedMax = maxPct + margin;
+            
+            // 6. Seçilen adıma hizala
+            let minPctLabel = Math.floor(expandedMin / step) * step;
+            let maxPctLabel = Math.ceil(expandedMax / step) * step;
+            
+            // 7. Y-axis sadece gerçek minimum equity 100'ün üstündeyse 0%'ın altına inmesin
+            if (minEq >= 100 && minPctLabel < 0) {
+                minPctLabel = 0;
+            }
+            
+            // 8. Toplam aralığı hesapla (artık veri odaklı)
+            let totalRange = maxPctLabel - minPctLabel;
+            
+            // 9. Eksen değerlerini tekrar equity'ye çevir
+            let minEqFixed = 100 + minPctLabel;
+            let maxEqFixed = 100 + maxPctLabel;
+            // minEqFixed ve maxEqFixed equity olarak kullanılacak
+            // minPct ve maxPct ise sadece label için
+            let minDate = points[0].date;
+            let maxDate = points[points.length-1].date;
+            let padY = 44, padX = 60; // Etiketler için daha fazla boşluk: padY: 38→50, padX: 80→90
+            let W = canvas.width, H = canvas.height;
+            // Dış çerçeve kaldırıldı - sadece ana chart çerçevesi kalacak
+            ctx.save();
+            ctx.strokeStyle = "#23272f";
+            ctx.lineWidth = 1.1;
+            ctx.globalAlpha = 0.6;
+            ctx.setLineDash([4, 7]);
+            // Dinamik sayıda yatay grid çizgileri
+            let yLabelCount = Math.round(totalRange / step) + 1;
+            for(let i=0; i<yLabelCount; i++){
+                let y = padY + (H-2*padY)*(1-i/(yLabelCount-1));
+                ctx.beginPath();
+                ctx.moveTo(padX, y);
+                ctx.lineTo(W-padX, y);
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 0.4;
+            ctx.setLineDash([2, 8]);
+            let nLabelsGrid = Math.min(5, points.length);
+            for(let i=0;i<nLabelsGrid;i++){
+                let idx = Math.round(i*(points.length-1)/(nLabelsGrid-1));
+                let x = padX + (W-2*padX)*(points[idx].date-minDate)/(maxDate-minDate||1);
+                ctx.beginPath();
+                ctx.moveTo(x, padY);
+                ctx.lineTo(x, H-padY);
+                ctx.stroke();
+            }
+            ctx.setLineDash([]);
+            ctx.restore();
+            ctx.save();
+            // Subtle gradient eksen çizgileri - daha az göze çarpan
+            let axisGrad = ctx.createLinearGradient(padX, padY, W-padX, H-padY);
+            axisGrad.addColorStop(0, "#3b3b5c");
+            axisGrad.addColorStop(0.5, "#4f46e5");
+            axisGrad.addColorStop(1, "#5c5c7a");
+            ctx.strokeStyle = axisGrad;
+            ctx.lineWidth = 1.8;
+            ctx.shadowColor = "#4f46e522";
+            ctx.shadowBlur = 3;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.globalAlpha = 0.7;
+            ctx.beginPath();
+            ctx.moveTo(padX, padY);
+            ctx.lineTo(padX, H-padY);
+            ctx.lineTo(W-padX, H-padY);
+            ctx.stroke();
+            ctx.restore();
+            ctx.save();
+            // ---
+            // GEREKSİZ ikinci çizgi ve noktalar kaldırıldı
+            // ---
+            ctx.save();
+            ctx.fillStyle = "#b3b3d7";
+            ctx.font = "bold 14px 'Consolas', 'Menlo', 'monospace'";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            ctx.shadowColor = "#000";
+            ctx.shadowBlur = 2;
+            ctx.shadowOffsetX = 0.5;
+            ctx.shadowOffsetY = 0.5;
+            // Y-ekseni etiketleri: akıllı adım boyutuna göre dinamik etiketler
+            let yLabelCount2 = Math.round(totalRange / step) + 1;
+            for(let i=0; i<yLabelCount2; i++){
+                let y = padY + (H-2*padY)*(1-i/(yLabelCount2-1)); // Grid çizgilerinin konumu
+                let pct = minPctLabel + (step * i); // Bu konuma karşılık gelen yüzde
+                // Ondalık gösterimi sadece 1% adımda gerekli
+                let decimals = step >= 2 ? 0 : 1;
+                ctx.fillText(pct.toFixed(decimals) + "%", padX-16, y); // Etiketleri geri normal konuma aldık
+            }
+            ctx.restore();
+            // Modern gradient equity line with enhanced visual effects
+            ctx.save();
+            // Create sophisticated gradient from teal to bright green
+            let grad2 = ctx.createLinearGradient(padX, padY, W-padX, padY);
+            grad2.addColorStop(0, "#0891b2");    // Deep cyan
+            grad2.addColorStop(0.3, "#06a091");  // Teal
+            grad2.addColorStop(0.7, "#10b981");  // Emerald
+            grad2.addColorStop(1, "#22c55e");    // Bright green
+            ctx.strokeStyle = grad2;
+            ctx.lineWidth = 3.8;
+            // Enhanced shadow with multiple layers for depth
+            ctx.shadowColor = "#06a09199";
+            ctx.shadowBlur = 12;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 2;
+            let xy2 = points.map((p,i)=>{
+                let x = padX + (W-2*padX)*(p.date-minDate)/(maxDate-minDate||1);
+                let y = padY + (H-2*padY)*(1-(p.eq-minEqFixed)/(maxEqFixed-minEqFixed));
+                return {x,y};
+            });
+            ctx.beginPath();
+            if (xy2.length > 1) {
+                ctx.moveTo(xy2[0].x, xy2[0].y);
+                for (let i = 0; i < xy2.length - 1; i++) {
+                    let p0 = xy2[i > 0 ? i - 1 : 0];
+                    let p1 = xy2[i];
+                    let p2 = xy2[i + 1];
+                    let p3 = xy2[i + 2 < xy2.length ? i + 2 : xy2.length - 1];
+                    let cp1x = p1.x + (p2.x - p0.x) / 6;
+                    let cp1y = p1.y + (p2.y - p0.y) / 6;
+                    let cp2x = p2.x - (p3.x - p1.x) / 6;
+                    let cp2y = p2.y - (p3.y - p1.y) / 6;
+                    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+                }
+            }
+            ctx.stroke();
+            ctx.restore();
+            ctx.save();
+            xy2.forEach((pt,i)=>{
+                ctx.beginPath();
+                ctx.arc(pt.x,pt.y, i===xy2.length-1 ? 5 : 3.2,0,2*Math.PI);
+                ctx.fillStyle = i===xy2.length-1 ? "#06a091" : "#b3b3d7";
+                ctx.shadowColor = i===xy2.length-1 ? "#06a091" : "#23272f";
+                ctx.shadowBlur = i===xy2.length-1 ? 16 : 4;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+            ctx.restore();
+            ctx.save();
+            ctx.font = "bold 13px 'Consolas', 'Menlo', 'monospace'";
+            ctx.fillStyle = "#b3b3d7";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "top";
+            ctx.shadowColor = "#000";
+            ctx.shadowBlur = 2;
+            ctx.shadowOffsetX = 0.5;
+            ctx.shadowOffsetY = 0.5;
+            let nLabelsAxis = Math.min(5, points.length);
+            for(let i=0;i<nLabelsAxis;i++){
+                let idx = Math.round(i*(points.length-1)/(nLabelsAxis-1));
+                let p = points[idx];
+                let x = padX + (W-2*padX)*(p.date-minDate)/(maxDate-minDate||1);
+                let mm = (p.date.getMonth()+1).toString().padStart(2,'0');
+                let dd = p.date.getDate().toString().padStart(2,'0');
+                let label = mm + "." + dd;
+                ctx.fillText(label, x, H-padY+12);
+            }
+            ctx.restore();
+        }
                         }
                         const tbody = document.querySelector(
                             `#${tableId} tbody`,
@@ -717,7 +1021,11 @@
       `;
             }
 
+            function isAnyEquityModalOpen() {
+                return !!document.querySelector('[id^="equity-modal-"][style*="display: flex"]');
+            }
             function loadAll() {
+                if (isAnyEquityModalOpen()) return;
                 loadTradesGeneric(
                     "foddsignal.csv",
                     "stats-bar",
@@ -825,6 +1133,40 @@
                     0 2px 12px #ef444433,
                     0 1px 0 #3d1a1a44;
             }
+            
+            /* Chart Button Hover Effect */
+            [id^="equity-graph-icon"]:hover {
+                transform: translateY(-3px) scale(1.035) !important;
+                box-shadow: 0 6px 32px #0007, 0 2px 0 #23243a !important;
+                border-color: #06a091 !important;
+            }
+            
+            /* Custom Scrollbar Styles */
+            ::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+            ::-webkit-scrollbar-track {
+                background: #15171c;
+                border-radius: 4px;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: linear-gradient(135deg, #23272f 0%, #3b3b5c 50%, #4f46e5 100%);
+                border-radius: 4px;
+                border: 1px solid #181a20;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(135deg, #3b3b5c 0%, #4f46e5 50%, #06a091 100%);
+            }
+            ::-webkit-scrollbar-corner {
+                background: #15171c;
+            }
+            
+            /* Firefox scrollbar */
+            * {
+                scrollbar-width: thin;
+                scrollbar-color: #23272f #15171c;
+            }
             @media (max-width: 600px) {
                 .table-container {
                     padding-left: 3vw !important;
@@ -841,8 +1183,8 @@
                 }
                 .stat-total, .stat-total-single {
                     min-width: 0 !important;
-                    max-width: 98vw !important;
-                    width: 98vw !important;
+                    max-width: calc(100vw - 80px) !important;
+                    width: calc(100vw - 80px) !important;
                     padding: 14px 8px 10px 8px !important;
                     font-size: 1.22em !important;
                     min-height: 56px !important;
@@ -860,6 +1202,46 @@
                 .stat-total-value {
                     font-size: 1.35em !important;
                     margin: 0 !important;
+                }
+                /* Total return bar mobile centered layout */
+                #total-return-bar, #total-return-bar-v2 {
+                    display: flex !important;
+                    justify-content: center !important;
+                    align-items: center !important;
+                    width: 100vw !important;
+                    margin: 16px 0 28px 0 !important;
+                    padding: 0 20px !important;
+                    box-sizing: border-box !important;
+                }
+                #total-return-bar > div, #total-return-bar-v2 > div {
+                    display: flex !important;
+                    justify-content: center !important;
+                    align-items: center !important;
+                    flex-direction: row !important;
+                    gap: 0 !important;
+                    width: auto !important;
+                    max-width: calc(100vw - 40px) !important;
+                }
+                /* Chart button mobile adjustments */
+                [id^="equity-graph-icon"] {
+                    margin-left: 18px !important;
+                    padding: 7px 10px !important;
+                    border-radius: 10px !important;
+                    transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease !important;
+                    border: 2px solid #3b3b5c !important;
+                    background: linear-gradient(135deg, #23243a 80%, #4f46e5 100%) !important;
+                    box-shadow: 0 2px 12px #0005 !important;
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    cursor: pointer !important;
+                    min-height: 44px !important;
+                    flex-shrink: 0 !important;
+                }
+                [id^="equity-graph-icon"] svg {
+                    width: 28px !important;
+                    height: 28px !important;
+                    display: block !important;
                 }
             }
         </style>
@@ -912,18 +1294,21 @@
                 document.addEventListener("click", function (e) {
                     const statBox =
                         e.target.closest && e.target.closest(".stat-box");
+                    const totalReturnBox =
+                        e.target.closest && e.target.closest(".stat-total");
+                    
                     if (statBox && statBox.dataset.info) {
                         const rect = statBox.getBoundingClientRect();
                         let x = rect.left + rect.width / 2 - 160;
                         let y = rect.bottom + 12;
 
-                        
                         if (y + 100 > window.innerHeight) {
                             y = rect.top - 70;
                         }
 
                         showPopup(statBox.dataset.info, x, y);
-                    } else {
+                    } else if (!totalReturnBox) {
+                        // Only hide popup if not clicking on any total return box
                         hidePopup();
                     }
                 });
