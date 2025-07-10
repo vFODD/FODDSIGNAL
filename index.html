@@ -621,7 +621,7 @@
                   </svg>
                 </span>
               </div>
-              <div id="${modalId}" style="display:none;position:fixed;z-index:99999;left:0;top:0;width:100vw;height:100vh;background:rgba(18,20,30,0);align-items:center;justify-content:center;transition:background 0.3s ease;">
+              <div id="${modalId}" style="display:none;position:fixed;z-index:99999;left:0;top:0;width:100vw;height:100vh;background:rgba(18,20,30,0);align-items:center;justify-content:center;transition:background 0.3s ease;pointer-events:none;">
                 <div style="background:#0e1016;padding:32px 18px 18px 18px;border-radius:18px;box-shadow:0 8px 48px #000b;max-width:98vw;max-height:90vh;position:relative;min-width:340px;transform:scale(0.8);opacity:0;transition:transform 0.3s ease, opacity 0.3s ease;">
                   <button id="${closeId}" style="position:absolute;top:10px;right:14px;background:none;border:none;color:#eaeaea;font-size:2em;cursor:pointer;">&times;</button>
                   <div style="font-size:1.18em;font-weight:600;color:#c7bfff;margin-bottom:16px;text-align:center;letter-spacing:1px;">Equity Change Over Time</div>
@@ -664,6 +664,7 @@
                               // Chart icon: open modal only
                               icon.onclick = function(e) {
                                 modal.style.display = "flex";
+                                modal.style.pointerEvents = "auto";
                                 const modalContent = modal.children[0];
                                 // Start animation
                                 setTimeout(() => {
@@ -687,6 +688,7 @@
                                 // Hide after animation
                                 setTimeout(() => {
                                   modal.style.display = "none";
+                                  modal.style.pointerEvents = "none";
                                 }, 300);
                               };
                               modal.onclick = function(e) {
@@ -699,6 +701,7 @@
                                   // Hide after animation
                                   setTimeout(() => {
                                     modal.style.display = "none";
+                                    modal.style.pointerEvents = "none";
                                   }, 300);
                                 }
                               };
