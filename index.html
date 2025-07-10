@@ -127,13 +127,7 @@
                 color: #dd2e44;
                 font-weight: bold;
             }
-            .transition {
-                transition-property:
-                    background-color, border-color, color, fill, stroke,
-                    opacity, box-shadow, transform;
-                transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-                transition-duration: 300ms;
-            }
+
         </style>
     </head>
     <body>
@@ -173,15 +167,7 @@
                     <tbody></tbody>
                 </table>
             </div>
-            <div
-                id="total-return-bar"
-                style="
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    margin: 12px 0 24px 0;
-                "
-            ></div>
+            <div id="total-return-bar" class="total-return-container"></div>
         </div>
         <div class="strategy-block">
             <div class="strategy-header">
@@ -208,15 +194,7 @@
                     <tbody></tbody>
                 </table>
             </div>
-            <div
-                id="total-return-bar-v2"
-                style="
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    margin: 12px 0 24px 0;
-                "
-            ></div>
+            <div id="total-return-bar-v2" class="total-return-container"></div>
         </div>
         <style>
             .strategy-block {
@@ -250,8 +228,12 @@
                 object-fit: contain;
                 box-shadow: 0 2px 12px #0005;
                 border: 2px solid #23272f;
-                margin-left: 0;
-                margin-right: 0;
+            }
+            .total-return-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin: 12px 0 24px 0;
             }
             .stats-bar {
                 display: flex;
@@ -463,56 +445,6 @@
                     dayCount,
                 };
             }
-            function getWeekNumber(d) {
-                d = new Date(
-                    Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()),
-                );
-                let dayNum = d.getUTCDay() || 7;
-                d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-                let yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-                return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
-            }
-            function renderStatsBar(stats) {
-                const bar = document.getElementById("stats-bar");
-                if (!stats) {
-                    bar.innerHTML = "";
-                    return;
-                }
-                const lang = (
-                    navigator.language ||
-                    navigator.userLanguage ||
-                    ""
-                ).toLowerCase();
-                const isTR = lang.startsWith("tr");
-                const labels = isTR
-                    ? {
-                          sharpe: "Sharpe Ratio: Riske göre düzeltilmiş getiri oranı. Daha yüksek değer, daha iyi risk-ayarlı performans.",
-                          win: "Win Rate: Kazanılan işlemlerin yüzdesi. Yüksek oran, daha fazla başarılı işlem demektir.",
-                          rr: "Avg R:R: Ortalama Risk/Ödül oranı. 1'den büyükse, kazançlar kayıplardan daha büyüktür.",
-                          dd: "Max Drawdown: En büyük sermaye düşüşü. Düşük olması daha iyidir.",
-                          week: "Weekly Return: Son haftanın toplam net getirisi.",
-                          month: "Monthly Return: Son ayın toplam net getirisi.",
-                          n: "# of Trades: Toplam işlem sayısı.",
-                      }
-                    : {
-                          sharpe: "Sharpe Ratio: Risk-adjusted return. Higher is better.",
-                          win: "Win Rate: Percentage of winning trades. Higher means more successful trades.",
-                          rr: "Avg R:R: Average Risk/Reward ratio. Above 1 means gains are larger than losses.",
-                          dd: "Max Drawdown: Largest equity drop. Lower is better.",
-                          week: "Weekly Return: Net return for the last week.",
-                          month: "Monthly Return: Net return for the last month.",
-                          n: "# of Trades: Total number of trades.",
-                      };
-                bar.innerHTML = `
-        <div class="stat-box" data-info="${labels.sharpe}"><div class="stat-label">Sharpe Ratio</div><div class="stat-value stat-sharpe">${stats.sharpe}</div></div>
-        <div class="stat-box" data-info="${labels.win}"><div class="stat-label">Win Rate</div><div class="stat-value stat-win">${stats.winRate}</div></div>
-        <div class="stat-box" data-info="${labels.rr}"><div class="stat-label">Avg R:R</div><div class="stat-value stat-rr">${stats.avgRR}</div></div>
-        <div class="stat-box" data-info="${labels.dd}"><div class="stat-label">Max Drawdown</div><div class="stat-value stat-dd">${stats.maxDraw}</div></div>
-        <div class="stat-box" data-info="${labels.week}"><div class="stat-label">Weekly Return</div><div class="stat-value stat-week">${stats.weekNet}</div></div>
-        <div class="stat-box" data-info="${labels.month}"><div class="stat-label">Monthly Return</div><div class="stat-value stat-month">${stats.monthNet}</div></div>
-        <div class="stat-box" data-info="${labels.n}"><div class="stat-label"># of Trades</div><div class="stat-value stat-n">${stats.n}</div></div>
-      `;
-            }
             function parseTrades(data) {
                 return data
                     .trim()
@@ -621,7 +553,7 @@
                   </svg>
                 </span>
               </div>
-              <div id="${modalId}" style="display:none;position:fixed;z-index:99999;left:0;top:0;width:100vw;height:100vh;background:rgba(18,20,30,0);align-items:center;justify-content:center;transition:background 0.3s ease;pointer-events:none;">
+              <div id="${modalId}" style="display:none;position:fixed;z-index:99999;inset:0;min-width:100vw;min-height:100vh;background:rgba(18,20,30,0);align-items:center;justify-content:center;transition:background 0.3s ease;pointer-events:none;overflow-x:hidden;">
                 <div style="background:#0e1016;padding:32px 18px 18px 18px;border-radius:18px;box-shadow:0 8px 48px #000b;max-width:98vw;max-height:90vh;position:relative;min-width:340px;transform:scale(0.8);opacity:0;transition:transform 0.3s ease, opacity 0.3s ease;">
                   <button id="${closeId}" style="position:absolute;top:10px;right:14px;background:none;border:none;color:#eaeaea;font-size:2em;cursor:pointer;">&times;</button>
                   <div style="font-size:1.18em;font-weight:600;color:#c7bfff;margin-bottom:16px;text-align:center;letter-spacing:1px;">Equity Change Over Time</div>
@@ -837,10 +769,8 @@
             ctx.lineTo(W-padX, H-padY);
             ctx.stroke();
             ctx.restore();
-            ctx.save();
-            // ---
-            // GEREKSİZ ikinci çizgi ve noktalar kaldırıldı
-            // ---
+            
+            // Y-axis labels
             ctx.save();
             ctx.fillStyle = "#b3b3d7";
             ctx.font = "bold 14px 'Consolas', 'Menlo', 'monospace'";
@@ -850,31 +780,30 @@
             ctx.shadowBlur = 2;
             ctx.shadowOffsetX = 0.5;
             ctx.shadowOffsetY = 0.5;
-            // Y-ekseni etiketleri: akıllı adım boyutuna göre dinamik etiketler
+            
             let yLabelCount2 = Math.round(totalRange / step) + 1;
             for(let i=0; i<yLabelCount2; i++){
-                let y = padY + (H-2*padY)*(1-i/(yLabelCount2-1)); // Grid çizgilerinin konumu
-                let pct = minPctLabel + (step * i); // Bu konuma karşılık gelen yüzde
-                // Ondalık gösterimi sadece 1% adımda gerekli
+                let y = padY + (H-2*padY)*(1-i/(yLabelCount2-1));
+                let pct = minPctLabel + (step * i);
                 let decimals = step >= 2 ? 0 : 1;
-                ctx.fillText(pct.toFixed(decimals) + "%", padX-16, y); // Etiketleri geri normal konuma aldık
+                ctx.fillText(pct.toFixed(decimals) + "%", padX-16, y);
             }
             ctx.restore();
-            // Modern gradient equity line with enhanced visual effects
+            
+            // Equity line
             ctx.save();
-            // Create sophisticated gradient from teal to bright green
             let grad2 = ctx.createLinearGradient(padX, padY, W-padX, padY);
-            grad2.addColorStop(0, "#0891b2");    // Deep cyan
-            grad2.addColorStop(0.3, "#06a091");  // Teal
-            grad2.addColorStop(0.7, "#10b981");  // Emerald
-            grad2.addColorStop(1, "#22c55e");    // Bright green
+            grad2.addColorStop(0, "#0891b2");
+            grad2.addColorStop(0.3, "#06a091");
+            grad2.addColorStop(0.7, "#10b981");
+            grad2.addColorStop(1, "#22c55e");
             ctx.strokeStyle = grad2;
             ctx.lineWidth = 3.8;
-            // Enhanced shadow with multiple layers for depth
             ctx.shadowColor = "#06a09199";
             ctx.shadowBlur = 12;
             ctx.shadowOffsetX = 0;
             ctx.shadowOffsetY = 2;
+            
             let xy2 = points.map((p,i)=>{
                 let x = padX + (W-2*padX)*(p.date-minDate)/(maxDate-minDate||1);
                 let y = padY + (H-2*padY)*(1-(p.eq-minEqFixed)/(maxEqFixed-minEqFixed));
@@ -1172,79 +1101,74 @@
             }
             @media (max-width: 600px) {
                 .table-container {
-                    padding-left: 3vw !important;
-                    padding-right: 3vw !important;
-                    padding-top: 12px !important;
-                    padding-bottom: 10px !important;
-                    width: 100vw !important;
-                    box-sizing: border-box !important;
-                    overflow-x: auto !important;
+                    padding: 12px 3vw 10px 3vw;
+                    width: 100vw;
+                    box-sizing: border-box;
+                    overflow-x: auto;
                 }
                 table {
-                    width: 100% !important;
-                    min-width: unset !important;
+                    width: 100%;
+                    min-width: unset;
                 }
                 .stat-total, .stat-total-single {
-                    min-width: 0 !important;
-                    max-width: calc(100vw - 80px) !important;
-                    width: calc(100vw - 80px) !important;
-                    padding: 14px 8px 10px 8px !important;
-                    font-size: 1.22em !important;
-                    min-height: 56px !important;
-                    height: auto !important;
-                    max-height: none !important;
-                    flex-direction: column !important;
-                    gap: 6px !important;
-                    align-items: center !important;
-                    justify-content: center !important;
+                    min-width: 0;
+                    max-width: calc(100vw - 80px);
+                    width: calc(100vw - 80px);
+                    padding: 14px 8px 10px 8px;
+                    font-size: 1.22em;
+                    min-height: 56px;
+                    height: auto;
+                    max-height: none;
+                    flex-direction: column;
+                    gap: 6px;
+                    align-items: center;
+                    justify-content: center;
                 }
                 .stat-total-label {
-                    font-size: 0.98em !important;
-                    margin: 0 !important;
+                    font-size: 0.98em;
+                    margin: 0;
                 }
                 .stat-total-value {
-                    font-size: 1.35em !important;
-                    margin: 0 !important;
+                    font-size: 1.35em;
+                    margin: 0;
                 }
-                /* Total return bar mobile centered layout */
                 #total-return-bar, #total-return-bar-v2 {
-                    display: flex !important;
-                    justify-content: center !important;
-                    align-items: center !important;
-                    width: 100vw !important;
-                    margin: 16px 0 28px 0 !important;
-                    padding: 0 20px !important;
-                    box-sizing: border-box !important;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    width: 100vw;
+                    margin: 16px 0 28px 0;
+                    padding: 0 20px;
+                    box-sizing: border-box;
                 }
                 #total-return-bar > div, #total-return-bar-v2 > div {
-                    display: flex !important;
-                    justify-content: center !important;
-                    align-items: center !important;
-                    flex-direction: row !important;
-                    gap: 0 !important;
-                    width: auto !important;
-                    max-width: calc(100vw - 40px) !important;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    flex-direction: row;
+                    gap: 0;
+                    width: auto;
+                    max-width: calc(100vw - 40px);
                 }
-                /* Chart button mobile adjustments */
                 [id^="equity-graph-icon"] {
-                    margin-left: 18px !important;
-                    padding: 7px 10px !important;
-                    border-radius: 10px !important;
-                    transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease !important;
-                    border: 2px solid #3b3b5c !important;
-                    background: linear-gradient(135deg, #23243a 80%, #4f46e5 100%) !important;
-                    box-shadow: 0 2px 12px #0005 !important;
-                    display: inline-flex !important;
-                    align-items: center !important;
-                    justify-content: center !important;
-                    cursor: pointer !important;
-                    min-height: 44px !important;
-                    flex-shrink: 0 !important;
+                    margin-left: 18px;
+                    padding: 7px 10px;
+                    border-radius: 10px;
+                    transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+                    border: 2px solid #3b3b5c;
+                    background: linear-gradient(135deg, #23243a 80%, #4f46e5 100%);
+                    box-shadow: 0 2px 12px #0005;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    min-height: 44px;
+                    flex-shrink: 0;
                 }
                 [id^="equity-graph-icon"] svg {
-                    width: 28px !important;
-                    height: 28px !important;
-                    display: block !important;
+                    width: 28px;
+                    height: 28px;
+                    display: block;
                 }
             }
         </style>
