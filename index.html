@@ -730,8 +730,17 @@
         function drawEquityChart(trades, canvasId) {
             const canvas = document.getElementById(canvasId);
             if (!canvas) return;
+            const dpr = window.devicePixelRatio || 1;
+            const cssWidth = 700;
+            const cssHeight = 320;
+            canvas.style.width = cssWidth + "px";
+            canvas.style.height = cssHeight + "px";
+            canvas.width = cssWidth * dpr;
+            canvas.height = cssHeight * dpr;
             const ctx = canvas.getContext("2d");
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, cssWidth, cssHeight);
             let dayMap = {};
             trades.forEach(t => {
                 let eq = parseFloat(t.equity);
@@ -798,7 +807,7 @@
             let minDate = points[0].date;
             let maxDate = points[points.length-1].date;
             let padY = 44, padX = 60;
-            let W = canvas.width, H = canvas.height;
+            let W = cssWidth, H = cssHeight;
 
             ctx.save();
             ctx.strokeStyle = "#23272f";
