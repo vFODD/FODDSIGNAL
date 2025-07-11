@@ -730,8 +730,28 @@
             const canvas = document.getElementById(canvasId);
             if (!canvas) return;
             const dpr = window.devicePixelRatio || 1;
-            const cssWidth = 700;
-            const cssHeight = 320;
+            // Responsive width/height: max 700x320, but shrink to fit parent or viewport
+            let parent = canvas.parentElement;
+            let maxW = 700, maxH = 320;
+            let availW = Math.min(
+                maxW,
+                window.innerWidth * 0.92,
+                parent ? parent.clientWidth * 0.98 : maxW
+            );
+            let availH = Math.min(
+                maxH,
+                window.innerHeight * 0.54,
+                parent ? parent.clientHeight * 0.98 : maxH
+            );
+            // Maintain aspect ratio
+            let aspect = maxW / maxH;
+            if (availW / availH > aspect) {
+                availW = availH * aspect;
+            } else {
+                availH = availW / aspect;
+            }
+            const cssWidth = Math.round(availW);
+            const cssHeight = Math.round(availH);
             canvas.style.width = cssWidth + "px";
             canvas.style.height = cssHeight + "px";
             canvas.width = cssWidth * dpr;
@@ -759,7 +779,6 @@
                 firstDate.setDate(firstDate.getDate() - 1);
                 points.unshift({ eq: 100, date: firstDate });
             } else {
-
                 let yesterday = new Date();
                 yesterday.setDate(yesterday.getDate() - 1);
                 points.push({ eq: 100, date: yesterday });
@@ -772,7 +791,6 @@
             }
             let minEq = Math.min(...points.map(p=>p.eq));
             let maxEq = Math.max(...points.map(p=>p.eq));
-
 
             let minPct = ((minEq-100)/100)*100;
             let maxPct = ((maxEq-100)/100)*100;
@@ -805,7 +823,8 @@
 
             let minDate = points[0].date;
             let maxDate = points[points.length-1].date;
-            let padY = 44, padX = 60;
+            // Padding oranla ayarlanıyor
+            let padY = Math.max(32, cssHeight * 0.13), padX = Math.max(36, cssWidth * 0.085);
             let W = cssWidth, H = cssHeight;
 
             ctx.save();
@@ -859,7 +878,7 @@
 
             ctx.save();
             ctx.fillStyle = "#b3b3d7";
-            ctx.font = "bold 14px 'Consolas', 'Menlo', 'monospace'";
+            ctx.font = `bold ${Math.max(12, Math.round(cssHeight*0.045))}px 'Consolas', 'Menlo', 'monospace'`;
             ctx.textAlign = "right";
             ctx.textBaseline = "middle";
             ctx.shadowColor = "#000";
@@ -883,7 +902,7 @@
             grad2.addColorStop(0.7, "#10b981");
             grad2.addColorStop(1, "#22c55e");
             ctx.strokeStyle = grad2;
-            ctx.lineWidth = 3.8;
+            ctx.lineWidth = Math.max(2.2, cssWidth*0.0055);
             ctx.shadowColor = "#06a09199";
             ctx.shadowBlur = 12;
             ctx.shadowOffsetX = 0;
@@ -914,7 +933,7 @@
             ctx.save();
             xy2.forEach((pt,i)=>{
                 ctx.beginPath();
-                ctx.arc(pt.x,pt.y, i===xy2.length-1 ? 5 : 3.2,0,2*Math.PI);
+                ctx.arc(pt.x,pt.y, i===xy2.length-1 ? Math.max(4, cssWidth*0.007) : Math.max(2.2, cssWidth*0.0045),0,2*Math.PI);
                 ctx.fillStyle = i===xy2.length-1 ? "#06a091" : "#b3b3d7";
                 ctx.shadowColor = i===xy2.length-1 ? "#06a091" : "#23272f";
                 ctx.shadowBlur = i===xy2.length-1 ? 16 : 4;
@@ -923,7 +942,7 @@
             });
             ctx.restore();
             ctx.save();
-            ctx.font = "bold 13px 'Consolas', 'Menlo', 'monospace'";
+            ctx.font = `bold ${Math.max(11, Math.round(cssHeight*0.04))}px 'Consolas', 'Menlo', 'monospace'`;
             ctx.fillStyle = "#b3b3d7";
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
