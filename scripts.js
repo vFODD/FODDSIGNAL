@@ -542,23 +542,33 @@ function calcStats(trades) {
     const isBreakpoint = window.innerWidth >= 950 && window.innerWidth <= 1050;
 
     function convertIstanbulToLocal(timeStr) {
-        if (!timeStr) return timeStr;
-        const [datePart, timePart] = timeStr.split(' ');
-        if (!datePart || !timePart) return timeStr;
-        const [day, month, year] = datePart.split('.');
+    if (!timeStr) return timeStr;
+    const [datePart, timePart] = timeStr.split(' ');
+    if (!datePart) return timeStr;
+    const [day, month, year] = datePart.split('.');
+    let dt;
+    if (timePart) {
         const [hour, minute] = timePart.split(':');
-        const dt = new Date(Date.UTC(
+        dt = new Date(Date.UTC(
             2000 + parseInt(year, 10),
             parseInt(month, 10) - 1,
             parseInt(day, 10),
             parseInt(hour, 10) - 3,
             parseInt(minute, 10)
         ));
-        return dt.toLocaleString(undefined, {
-            year: '2-digit', month: '2-digit', day: '2-digit',
-            hour: '2-digit', minute: '2-digit',
-            second: undefined
-        });
+    } else {
+        dt = new Date(Date.UTC(
+            2000 + parseInt(year, 10),
+            parseInt(month, 10) - 1,
+            parseInt(day, 10)
+        ));
+    }
+    // Kullanıcının yerel tarih formatına göre gösterim
+    return dt.toLocaleString(undefined, {
+        year: '2-digit', month: '2-digit', day: '2-digit',
+        hour: timePart ? '2-digit' : undefined,
+        minute: timePart ? '2-digit' : undefined
+    });
     }
 
     function formatTimeCell(timeStr) {
