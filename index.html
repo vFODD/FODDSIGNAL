@@ -573,7 +573,7 @@
                             };
                         }
                         return null;
-                    })
+                    });
                     .filter(Boolean);
             }
 
@@ -686,16 +686,27 @@
                                 modal.style.display = "flex";
                                 modal.style.pointerEvents = "auto";
                                 const modalContent = modal.children[0];
-
                                 setTimeout(() => {
                                   modal.style.background = "rgba(18,20,30,0.92)";
                                   modalContent.style.transform = "scale(1)";
                                   modalContent.style.opacity = "1";
                                 }, 10);
-
                                 setTimeout(() => {
                                   drawEquityChart(trades, chartId);
                                 }, 150);
+                                // Ekran yönü değiştiğinde veya pencere yeniden boyutlandığında grafiği güncelle
+                                function handleResize() {
+                                  if (modal.style.display === "flex") {
+                                    drawEquityChart(trades, chartId);
+                                  }
+                                }
+                                window.addEventListener('resize', handleResize);
+                                window.addEventListener('orientationchange', handleResize);
+                                // Modal kapatıldığında event'ı kaldır
+                                modal._removeResizeListener = function() {
+                                  window.removeEventListener('resize', handleResize);
+                                  window.removeEventListener('orientationchange', handleResize);
+                                };
                                 e.stopPropagation();
                               };
                               
@@ -709,6 +720,7 @@
                                 setTimeout(() => {
                                   modal.style.display = "none";
                                   modal.style.pointerEvents = "none";
+                                  if (typeof modal._removeResizeListener === 'function') modal._removeResizeListener();
                                 }, 300);
                               };
                               modal.onclick = function(e) {
@@ -722,6 +734,7 @@
                                   setTimeout(() => {
                                     modal.style.display = "none";
                                     modal.style.pointerEvents = "none";
+                                    if (typeof modal._removeResizeListener === 'function') modal._removeResizeListener();
                                   }, 300);
                                 }
                               };
@@ -878,7 +891,9 @@
 
             ctx.save();
             ctx.fillStyle = "#b3b3d7";
-            ctx.font = `bold ${Math.max(12, Math.round(cssHeight*0.045))}px 'Consolas', 'Menlo', 'monospace'`;
+            // Y ekseni yazı boyutu: min 9px, max 15px, ideal olarak küçük ekranda taşmayacak şekilde
+            let yFontPx = Math.max(9, Math.min(15, Math.round(cssHeight*0.038)));
+            ctx.font = `bold ${yFontPx}px 'Consolas', 'Menlo', 'monospace'`;
             ctx.textAlign = "right";
             ctx.textBaseline = "middle";
             ctx.shadowColor = "#000";
@@ -942,7 +957,9 @@
             });
             ctx.restore();
             ctx.save();
-            ctx.font = `bold ${Math.max(11, Math.round(cssHeight*0.04))}px 'Consolas', 'Menlo', 'monospace'`;
+            // X ekseni yazı boyutu: min 9px, max 14px
+            let xFontPx = Math.max(9, Math.min(14, Math.round(cssHeight*0.035)));
+            ctx.font = `bold ${xFontPx}px 'Consolas', 'Menlo', 'monospace'`;
             ctx.fillStyle = "#b3b3d7";
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
@@ -962,7 +979,6 @@
             }
             ctx.restore();
         }
-                        }
 
                         const tradesPerPage = 7;
 
