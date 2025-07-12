@@ -392,27 +392,40 @@ function calcStats(trades) {
 
             let dataRange = maxPct - minPct;
 
-            let step;
-            if (dataRange <= 3) step = 1;
-            else if (dataRange <= 10) step = 2;
-            else if (dataRange <= 25) step = 5;
-            else if (dataRange <= 50) step = 10;
-            else step = 20;
-
+            let targetLabels = 6;
+            let minStep = 1;
+            let maxStep = 100000;
+            let bestStep = 1;
+            let bestDiff = Infinity;
+            let stepCandidates = [];
+            let baseSteps = [1,2,5];
+            for(let exp=0; exp<6; exp++) {
+                let pow = Math.pow(10, exp);
+                baseSteps.forEach(bs => stepCandidates.push(bs*pow));
+            }
+            for(let s of stepCandidates) {
+                let margin = Math.max(s * 0.5, dataRange * 0.1);
+                let expandedMin = minPct - margin;
+                let expandedMax = maxPct + margin;
+                let minPctLabel = Math.floor(expandedMin / s) * s;
+                let maxPctLabel = Math.ceil(expandedMax / s) * s;
+                if (minEq >= 100 && minPctLabel < 0) minPctLabel = 0;
+                let totalRange = maxPctLabel - minPctLabel;
+                let labelCount = Math.round(totalRange / s) + 1;
+                let diff = Math.abs(labelCount - targetLabels);
+                if (labelCount >= 5 && labelCount <= 7 && diff < bestDiff) {
+                    bestStep = s;
+                    bestDiff = diff;
+                }
+            }
+            let step = bestStep;
             let margin = Math.max(step * 0.5, dataRange * 0.1);
-
             let expandedMin = minPct - margin;
             let expandedMax = maxPct + margin;
-
             let minPctLabel = Math.floor(expandedMin / step) * step;
             let maxPctLabel = Math.ceil(expandedMax / step) * step;
-
-            if (minEq >= 100 && minPctLabel < 0) {
-                minPctLabel = 0;
-            }
-
+            if (minEq >= 100 && minPctLabel < 0) minPctLabel = 0;
             let totalRange = maxPctLabel - minPctLabel;
-
             let minEqFixed = 100 + minPctLabel;
             let maxEqFixed = 100 + maxPctLabel;
 
@@ -544,50 +557,59 @@ function calcStats(trades) {
             ctx.shadowBlur = 2;
             ctx.shadowOffsetX = 0.5;
             ctx.shadowOffsetY = 0.5;
-            let maxLabels = 6;
+            let minXLabels = 5, maxXLabels = 9;
             let n = points.length;
-            let indices = [];
-            if (n <= maxLabels) {
-                for (let i = 0; i < n; i++) indices.push(i);
-            } else {
-                let step = Math.ceil(n / maxLabels);
-                if (step <= 7) {
-                    for (let i = 0; i < n; i += step) indices.push(i);
-                } else if (step <= 28) {
-                    let lastWeek = null;
-                    for (let i = 0; i < n; i++) {
-                        let d = points[i].date;
-                        let week = d.getFullYear() + '-' + d.getMonth() + '-' + Math.floor(d.getDate() / 7);
-                        if (week !== lastWeek) {
-                            indices.push(i);
-                            lastWeek = week;
-                        }
-                    }
+            let bestIndices = [];
+            let bestXDiff = Infinity;
+            for (let targetLabels = minXLabels; targetLabels <= maxXLabels; targetLabels++) {
+                let indices = [];
+                if (n <= targetLabels) {
+                    for (let i = 0; i < n; i++) indices.push(i);
                 } else {
-                    // Aylık
-                    let lastMonth = null;
-                    for (let i = 0; i < n; i++) {
-                        let d = points[i].date;
-                        let month = d.getFullYear() + '-' + d.getMonth();
-                        if (month !== lastMonth) {
-                            indices.push(i);
-                            lastMonth = month;
+                    let step = Math.ceil(n / targetLabels);
+                    if (step <= 7) {
+                        for (let i = 0; i < n; i += step) indices.push(i);
+                    } else if (step <= 28) {
+                        let lastWeek = null;
+                        for (let i = 0; i < n; i++) {
+                            let d = points[i].date;
+                            let week = d.getFullYear() + '-' + d.getMonth() + '-' + Math.floor(d.getDate() / 7);
+                            if (week !== lastWeek) {
+                                indices.push(i);
+                                lastWeek = week;
+                            }
+                        }
+                    } else {
+                        let lastMonth = null;
+                        for (let i = 0; i < n; i++) {
+                            let d = points[i].date;
+                            let month = d.getFullYear() + '-' + d.getMonth();
+                            if (month !== lastMonth) {
+                                indices.push(i);
+                                lastMonth = month;
+                            }
                         }
                     }
+                    if (!indices.includes(0)) indices.unshift(0);
+                    if (!indices.includes(n-1)) indices.push(n-1);
+                    indices = Array.from(new Set(indices)).sort((a,b)=>a-b);
                 }
-                if (!indices.includes(0)) indices.unshift(0);
-                if (!indices.includes(n-1)) indices.push(n-1);
-                indices = Array.from(new Set(indices)).sort((a,b)=>a-b);
+                let diff = Math.abs(indices.length - targetLabels);
+                if (indices.length >= minXLabels && indices.length <= maxXLabels && diff < bestXDiff) {
+                    bestIndices = indices;
+                    bestXDiff = diff;
+                }
             }
+            let indices = bestIndices.length ? bestIndices : [0, n-1];
             for(let k=0; k<indices.length; k++){
                 let idx = indices[k];
                 let p = points[idx];
                 let x = padX + (W-2*padX)*(p.date-minDate)/(maxDate-minDate||1);
                 let label;
                 if (n > 28 && (k === 0 || k === indices.length-1 || indices.length <= 6)) {
-                    label = (p.date.getMonth()+1).toString().padStart(2,'0') + "." + p.date.getFullYear().toString().slice(-2);
+                    label = p.date.toLocaleDateString(undefined, { year: '2-digit', month: '2-digit' });
                 } else {
-                    label = (p.date.getMonth()+1).toString().padStart(2,'0') + "." + p.date.getDate().toString().padStart(2,'0');
+                    label = p.date.toLocaleDateString(undefined, { month: '2-digit', day: '2-digit' });
                 }
                 ctx.fillText(label, x, H-padY+12);
             }
