@@ -192,7 +192,7 @@ function calcStats(trades) {
                   <span class="stat-total-label">${label}:</span>
                   <span class="stat-total-value ${valueColorClass}">${stats.totalReturn}</span>
                 </div>
-                <span id="${iconId}" title="Show equity chart" style="margin-left:18px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 12px #0005;background:linear-gradient(135deg, #23243a 80%, #4f46e5 100%);border-radius:10px;padding:7px 10px;transition:transform 0.3s ease,box-shadow 0.3s ease,border 0.3s ease; border:2px solid #3b3b5c;">
+                <span id="${iconId}" style="margin-left:18px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 12px #0005;background:linear-gradient(135deg, #23243a 80%, #4f46e5 100%);border-radius:10px;padding:7px 10px;transition:transform 0.3s ease,box-shadow 0.3s ease,border 0.3s ease; border:2px solid #3b3b5c;">
                   <svg width="28" height="28" viewBox="0 0 28 28" fill="none" style="display:block;" xmlns="http://www.w3.org/2000/svg">
                     <rect x="2" y="3" width="24" height="20" rx="6" fill="#181a20" stroke="#4f46e5" stroke-width="1.7"/>
                     <path d="M7 19L13 12L16 16L22 8" stroke="#06a091" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -303,7 +303,6 @@ function calcStats(trades) {
                 window.innerHeight * 0.54,
                 parent ? parent.clientHeight * 0.98 : maxH
             );
-            // Maintain aspect ratio
             let aspect = maxW / maxH;
             if (availW / availH > aspect) {
                 availW = availH * aspect;
@@ -383,7 +382,6 @@ function calcStats(trades) {
 
             let minDate = points[0].date;
             let maxDate = points[points.length-1].date;
-            // Padding oranla ayarlanıyor
             let padY = Math.max(32, cssHeight * 0.13), padX = Math.max(36, cssWidth * 0.085);
             let W = cssWidth, H = cssHeight;
 
@@ -563,7 +561,6 @@ function calcStats(trades) {
             parseInt(day, 10)
         ));
     }
-    // Kullanıcının yerel tarih formatına göre gösterim
     return dt.toLocaleString(undefined, {
         year: '2-digit', month: '2-digit', day: '2-digit',
         hour: timePart ? '2-digit' : undefined,
@@ -695,25 +692,30 @@ function calcStats(trades) {
                             
                             let paginationHTML = '';
 
-                            const prevDisabled = page === 1 ? 'disabled' : '';
-                            paginationHTML += `<button class="pagination-button" ${prevDisabled} onclick="changePage(${page - 1}, '${tableId}', '${paginationId}')">‹</button>`;
+    const prevDisabled = page === 1 ? 'disabled' : '';
+    paginationHTML += `<button class="pagination-button" ${prevDisabled} onclick="changePage(${page - 1}, '${tableId}', '${paginationId}')">‹</button>`;
 
-                            const startPage = Math.max(1, page - 2);
-                            const endPage = Math.min(totalPages, page + 2);
-                            
-                            for (let i = startPage; i <= endPage; i++) {
-                                const activeClass = i === page ? 'active' : '';
-                                paginationHTML += `<button class="pagination-button ${activeClass}" onclick="changePage(${i}, '${tableId}', '${paginationId}')">${i}</button>`;
-                            }
+    let maxButtons = 5;
+    let startPage = Math.max(1, page - Math.floor(maxButtons / 2));
+    let endPage = startPage + maxButtons - 1;
+    if (endPage > totalPages) {
+        endPage = totalPages;
+        startPage = Math.max(1, endPage - maxButtons + 1);
+    }
+    for (let i = startPage; i <= endPage; i++) {
+        const activeClass = i === page ? 'active' : '';
+        paginationHTML += `<button class="pagination-button ${activeClass}" onclick="changePage(${i}, '${tableId}', '${paginationId}')">${i}</button>`;
+    }
 
-                            const nextDisabled = page === totalPages ? 'disabled' : '';
-                            paginationHTML += `<button class="pagination-button" ${nextDisabled} onclick="changePage(${page + 1}, '${tableId}', '${paginationId}')">›</button>`;
+    const nextDisabled = page === totalPages ? 'disabled' : '';
+    paginationHTML += `<button class="pagination-button" ${nextDisabled} onclick="changePage(${page + 1}, '${tableId}', '${paginationId}')">›</button>`;
 
-                            const startItem = (page - 1) * tradesPerPage + 1;
-                            const endItem = Math.min(page * tradesPerPage, totalTrades);
-                            paginationHTML += `<span class="pagination-info">${startItem}-${endItem} / ${totalTrades}</span>`;
-                            
-                            container.innerHTML = paginationHTML;
+    const startItem = (page - 1) * tradesPerPage + 1;
+    const endItem = Math.min(page * tradesPerPage, totalTrades);
+    const infoText = `${startItem}-${endItem} / ${totalTrades}`;
+    paginationHTML += `<span class="pagination-info" style="display:inline-block;min-width:110px;text-align:center;">${infoText}</span>`;
+
+    container.innerHTML = paginationHTML;
                         }
 
                         window[`changePage_${tableId}`] = function(page, tableId, paginationId) {
