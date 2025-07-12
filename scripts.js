@@ -606,7 +606,23 @@ function calcStats(trades) {
                 let p = points[idx];
                 let x = padX + (W-2*padX)*(p.date-minDate)/(maxDate-minDate||1);
                 let label;
-                if (n > 28 && (k === 0 || k === indices.length-1 || indices.length <= 6)) {
+                const lang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+                const isTR = lang.startsWith('tr');
+                const europeanLangs = [
+                  'de', 'fr', 'es', 'it', 'nl', 'pl', 'pt', 'cs', 'da', 'fi', 'sv', 'no', 'hu', 'el', 'ro', 'bg', 'hr', 'lt', 'lv', 'et', 'sk', 'sl', 'mt', 'ga', 'eu', 'ca', 'is', 'sq', 'bs', 'mk', 'sr', 'tr'
+                ];
+                const isEU = europeanLangs.some(code => lang.startsWith(code));
+                if (isTR || isEU) {
+                    if (n > 28 && (k === 0 || k === indices.length-1 || indices.length <= 6)) {
+                        const month = (p.date.getMonth() + 1).toString().padStart(2, '0');
+                        const year = p.date.getFullYear().toString().slice(-2);
+                        label = `${month}.${year}`;
+                    } else {
+                        const day = p.date.getDate().toString().padStart(2, '0');
+                        const month = (p.date.getMonth() + 1).toString().padStart(2, '0');
+                        label = `${day}.${month}`;
+                    }
+                } else if (n > 28 && (k === 0 || k === indices.length-1 || indices.length <= 6)) {
                     label = p.date.toLocaleDateString(undefined, { year: '2-digit', month: '2-digit' });
                 } else {
                     label = p.date.toLocaleDateString(undefined, { month: '2-digit', day: '2-digit' });
@@ -656,6 +672,25 @@ function calcStats(trades) {
             parseInt(day, 10)
         ));
     }
+    const lang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+    const isTR = lang.startsWith('tr');
+    const europeanLangs = [
+      'de', 'fr', 'es', 'it', 'nl', 'pl', 'pt', 'cs', 'da', 'fi', 'sv', 'no', 'hu', 'el', 'ro', 'bg', 'hr', 'lt', 'lv', 'et', 'sk', 'sl', 'mt', 'ga', 'eu', 'ca', 'is', 'sq', 'bs', 'mk', 'sr', 'tr'
+    ];
+    const isEU = europeanLangs.some(code => lang.startsWith(code));
+    if (isTR || isEU) {
+        const dd = dt.getUTCDate().toString().padStart(2, '0');
+        const mm = (dt.getUTCMonth() + 1).toString().padStart(2, '0');
+        const yy = dt.getUTCFullYear().toString().slice(-2);
+        if (timePart) {
+            const hh = dt.getUTCHours().toString().padStart(2, '0');
+            const min = dt.getUTCMinutes().toString().padStart(2, '0');
+            return `${dd}.${mm}.${yy} ${hh}:${min}`;
+        } else {
+            return `${dd}.${mm}.${yy}`;
+        }
+    }
+    // Fallback to locale
     return dt.toLocaleString(undefined, {
         year: '2-digit', month: '2-digit', day: '2-digit',
         hour: timePart ? '2-digit' : undefined,
