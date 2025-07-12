@@ -284,6 +284,8 @@ function calcStats(trades) {
                                 setTimeout(() => {
                                   handleEquityChartDisplay();
                                 }, 150);
+                                window.removeEventListener('resize', handleEquityChartDisplay);
+                                window.removeEventListener('orientationchange', handleEquityChartDisplay);
                                 window.addEventListener('resize', handleEquityChartDisplay);
                                 window.addEventListener('orientationchange', handleEquityChartDisplay);
                                 e.stopPropagation();
