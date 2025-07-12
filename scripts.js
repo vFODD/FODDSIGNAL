@@ -207,7 +207,19 @@ function calcStats(trades) {
                 <div style="background:#0e1016;padding:32px 18px 18px 18px;border-radius:18px;box-shadow:0 8px 48px #000b;max-width:98vw;max-height:90vh;position:relative;min-width:340px;transform:scale(0.8);opacity:0;transition:transform 0.3s ease, opacity 0.3s ease;">
                   <button id="${closeId}" style="position:absolute;top:10px;right:14px;background:none;border:none;color:#eaeaea;font-size:2em;cursor:pointer;">&times;</button>
                   <div style="font-size:1.18em;font-weight:600;color:#c7bfff;margin-bottom:16px;text-align:center;letter-spacing:1px;">Equity Change Over Time</div>
-                  <canvas id="${chartId}" width="700" height="320" style="background:#181a20;border-radius:13px;max-width:92vw;max-height:54vh;box-shadow:0 2px 24px #0007;"></canvas>
+                  <canvas id="${chartId}" width="1100" height="500" style="background:#181a20;border-radius:13px;max-width:99vw;max-height:80vh;box-shadow:0 2px 24px #0007;"></canvas>
+                  <div id="rotate-warning-${uniq}" style="display:none; padding:38px 0 0 0;">
+                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;">
+                      <svg width="70" height="70" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;">
+                        <rect x="18" y="10" width="34" height="50" rx="8" fill="#23243a" stroke="#4f46e5" stroke-width="2.5"/>
+                        <rect x="28" y="16" width="14" height="38" rx="3.5" fill="#181a20" stroke="#06a091" stroke-width="1.5"/>
+                        <path d="M60 35a25 25 0 1 0-8.5 18.5" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 7"/>
+                        <path d="M56 56l-4.5-2.5 2.5-4.5" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <div style="color:#fbbf24;font-size:1.22em;font-weight:600;text-align:center;letter-spacing:0.01em;">Please rotate your device</div>
+                      <div style="color:#b3b3d7;font-size:1em;font-weight:400;text-align:center;max-width:260px;opacity:0.85;">For the best chart experience, view in landscape mode.</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             `;
@@ -242,6 +254,22 @@ function calcStats(trades) {
                                 e.stopPropagation();
                               };
 
+
+                              function handleEquityChartDisplay() {
+                                const canvas = document.getElementById(chartId);
+                                const warning = document.getElementById(`rotate-warning-${uniq}`);
+                                if (window.innerWidth < 700 && window.innerHeight > window.innerWidth) {
+                                  if (canvas) canvas.style.display = 'none';
+                                  if (warning) warning.style.display = 'block';
+                                } else {
+                                  if (warning) warning.style.display = 'none';
+                                  if (canvas) {
+                                    canvas.style.display = 'block';
+                                    drawEquityChart(trades, chartId);
+                                  }
+                                }
+                              }
+
                               icon.onclick = function(e) {
                                 modal.style.display = "flex";
                                 modal.style.pointerEvents = "auto";
@@ -254,8 +282,10 @@ function calcStats(trades) {
                                 }, 10);
 
                                 setTimeout(() => {
-                                  drawEquityChart(trades, chartId);
+                                  handleEquityChartDisplay();
                                 }, 150);
+                                window.addEventListener('resize', handleEquityChartDisplay);
+                                window.addEventListener('orientationchange', handleEquityChartDisplay);
                                 e.stopPropagation();
                               };
                               
@@ -269,6 +299,8 @@ function calcStats(trades) {
                                 setTimeout(() => {
                                   modal.style.display = "none";
                                   modal.style.pointerEvents = "none";
+                                  window.removeEventListener('resize', handleEquityChartDisplay);
+                                  window.removeEventListener('orientationchange', handleEquityChartDisplay);
                                 }, 300);
                               };
                               modal.onclick = function(e) {
@@ -282,6 +314,8 @@ function calcStats(trades) {
                                   setTimeout(() => {
                                     modal.style.display = "none";
                                     modal.style.pointerEvents = "none";
+                                    window.removeEventListener('resize', handleEquityChartDisplay);
+                                    window.removeEventListener('orientationchange', handleEquityChartDisplay);
                                   }, 300);
                                 }
                               };
@@ -290,17 +324,16 @@ function calcStats(trades) {
             const canvas = document.getElementById(canvasId);
             if (!canvas) return;
             const dpr = window.devicePixelRatio || 1;
-            // Responsive width/height: max 700x320, but shrink to fit parent or viewport
             let parent = canvas.parentElement;
-            let maxW = 700, maxH = 320;
+            let maxW = 1100, maxH = 500;
             let availW = Math.min(
                 maxW,
-                window.innerWidth * 0.92,
+                window.innerWidth * 0.99,
                 parent ? parent.clientWidth * 0.98 : maxW
             );
             let availH = Math.min(
                 maxH,
-                window.innerHeight * 0.54,
+                window.innerHeight * 0.80,
                 parent ? parent.clientHeight * 0.98 : maxH
             );
             let aspect = maxW / maxH;
