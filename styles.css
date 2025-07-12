@@ -535,6 +535,11 @@ body {
                     font-size: 0.98em;
                     margin: 0;
                 }
+                @media (max-width: 390px) {
+                .stat-total-label {
+                    font-size: 0.85em;
+                }
+                }
                 .stat-total-value {
                     font-size: 1.35em;
                     margin: 0;
@@ -588,6 +593,11 @@ body {
                 padding: 0 20px;
                 flex-wrap: wrap;
                 position: relative;
+            }
+            @media (max-width: 460px) {
+                .pagination-container {
+                    justify-content: left;
+                }
             }
             
             .pagination-button {

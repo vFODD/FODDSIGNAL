@@ -696,6 +696,11 @@ function calcStats(trades) {
     paginationHTML += `<button class="pagination-button" ${prevDisabled} onclick="changePage(${page - 1}, '${tableId}', '${paginationId}')">‹</button>`;
 
     let maxButtons = 5;
+    if (window.innerWidth <= 525) {
+        maxButtons = 3;
+    } else if (window.innerWidth <= 600) {
+        maxButtons = 4;
+    }
     let startPage = Math.max(1, page - Math.floor(maxButtons / 2));
     let endPage = startPage + maxButtons - 1;
     if (endPage > totalPages) {
