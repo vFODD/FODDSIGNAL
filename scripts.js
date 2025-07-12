@@ -544,14 +544,51 @@ function calcStats(trades) {
             ctx.shadowBlur = 2;
             ctx.shadowOffsetX = 0.5;
             ctx.shadowOffsetY = 0.5;
-            let nLabelsAxis = Math.min(5, points.length);
-            for(let i=0;i<nLabelsAxis;i++){
-                let idx = Math.round(i*(points.length-1)/(nLabelsAxis-1));
+            let maxLabels = 6;
+            let n = points.length;
+            let indices = [];
+            if (n <= maxLabels) {
+                for (let i = 0; i < n; i++) indices.push(i);
+            } else {
+                let step = Math.ceil(n / maxLabels);
+                if (step <= 7) {
+                    for (let i = 0; i < n; i += step) indices.push(i);
+                } else if (step <= 28) {
+                    let lastWeek = null;
+                    for (let i = 0; i < n; i++) {
+                        let d = points[i].date;
+                        let week = d.getFullYear() + '-' + d.getMonth() + '-' + Math.floor(d.getDate() / 7);
+                        if (week !== lastWeek) {
+                            indices.push(i);
+                            lastWeek = week;
+                        }
+                    }
+                } else {
+                    // Aylık
+                    let lastMonth = null;
+                    for (let i = 0; i < n; i++) {
+                        let d = points[i].date;
+                        let month = d.getFullYear() + '-' + d.getMonth();
+                        if (month !== lastMonth) {
+                            indices.push(i);
+                            lastMonth = month;
+                        }
+                    }
+                }
+                if (!indices.includes(0)) indices.unshift(0);
+                if (!indices.includes(n-1)) indices.push(n-1);
+                indices = Array.from(new Set(indices)).sort((a,b)=>a-b);
+            }
+            for(let k=0; k<indices.length; k++){
+                let idx = indices[k];
                 let p = points[idx];
                 let x = padX + (W-2*padX)*(p.date-minDate)/(maxDate-minDate||1);
-                let mm = (p.date.getMonth()+1).toString().padStart(2,'0');
-                let dd = p.date.getDate().toString().padStart(2,'0');
-                let label = mm + "." + dd;
+                let label;
+                if (n > 28 && (k === 0 || k === indices.length-1 || indices.length <= 6)) {
+                    label = (p.date.getMonth()+1).toString().padStart(2,'0') + "." + p.date.getFullYear().toString().slice(-2);
+                } else {
+                    label = (p.date.getMonth()+1).toString().padStart(2,'0') + "." + p.date.getDate().toString().padStart(2,'0');
+                }
                 ctx.fillText(label, x, H-padY+12);
             }
             ctx.restore();
