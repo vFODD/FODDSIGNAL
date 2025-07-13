@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>FODDSIGNAL TRADE LOGS</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <meta name="description" content="FODDSIGNAL & FODDv2 (PRO) - Crypto trading logs and performance stats." />
+        <meta name="keywords" content="FODDSIGNAL, FODDv2, crypto, trading, trade logs, statistics, Sharpe ratio, win rate, drawdown, risk reward, performance, equity, trading strategy" />
+        <meta name="author" content="FODDSIGNAL" />
+        <meta property="og:title" content="FODDSIGNAL TRADE LOGS" />
+        <meta property="og:description" content="FODDSIGNAL & FODDv2 (PRO) - Crypto trading logs and performance stats." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://vfodd.github.io/FODDSIGNAL/" />
+        <meta property="og:image" content="https://vfodd.github.io/FODDSIGNAL/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="FODDSIGNAL TRADE LOGS" />
+        <meta name="twitter:description" content="FODDSIGNAL & FODDv2 (PRO) - Crypto trading logs and performance stats." />
+        <meta name="twitter:image" content="https://vfodd.github.io/FODDSIGNAL/og-image.png" />
+        <meta name="twitter:image:src" content="https://vfodd.github.io/FODDSIGNAL/og-image.png" />
+        <meta name="twitter:site" content="@FODDSIGNAL" />
+        <meta name="twitter:creator" content="@FODDSIGNAL" />
+        <link rel="icon" type="image/x-icon" href="favicon.ico" />
+        
+        <link rel="stylesheet" href="styles.css">
+        <style>
+          html, body {
+            touch-action: manipulation;
+            overscroll-behavior: contain;
+          }
+        </style>
+        <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "e5c2f1bea4d044179ca2117544d0ff27"}'></script>
+</head>
+    <body>
+        <div class="social-links" style="position: absolute; top: 22px; right: 32px; z-index: 100; display: flex; gap: 18px;">
+            <a href="https://x.com/FODDSIGNAL" target="_blank" rel="noopener" title="Twitter/X" style="display: flex; align-items: center; text-decoration: none;">
+                <svg width="32" height="32" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
+                  <rect width="120" height="120" rx="24" fill="#181A20"/>
+                  <path d="M86 32H98L72 60.5L101 98H81L62 76.5L42 98H22L50.5 66.5L22 32H43L60.5 52.5L78 32H86ZM81 91H87L54 41H48L81 91Z" fill="#eaeaea"/>
+                </svg>
+            </a>
+            <a href="https://t.me/foddv1" target="_blank" rel="noopener" title="Telegram" style="display: flex; align-items: center; text-decoration: none;">
+                <svg width="26" height="26" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;"><g><circle cx="120" cy="120" r="120" fill="#229ED9"/><path d="M180.5 70.5L157.5 178.5C155.5 186.5 150.5 188.5 143.5 184.5L110.5 160.5L94.5 175.5C92.5 177.5 90.5 179.5 87.5 179.5L89.5 145.5L157.5 82.5C160.5 79.5 157.5 78.5 153.5 81.5L75.5 132.5L42.5 122.5C35.5 120.5 35.5 115.5 44.5 112.5L172.5 67.5C178.5 65.5 183.5 69.5 180.5 70.5Z" fill="#fff"/></g></svg>
+            </a>
+        </div>
+        <div class="strategy-block" style="position: relative;">
+            <div class="strategy-header">
+                <img src="v.png" alt="FODDSIGNAL" class="strategy-img" />
+                <h2>FODDSIGNAL</h2>
+            </div>
+            <div id="stats-bar" class="stats-bar"></div>
+            <div class="table-container">
+                <table id="tradeTable">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Coin</th>
+                            <th>L/S</th>
+                            <th>Entry</th>
+                            <th>Exit</th>
+                            <th>Reason</th>
+                            <th>PnL</th>
+                            <th>Equity</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div id="pagination-container-1" class="pagination-container"></div>
+            <div id="total-return-bar" class="total-return-container"></div>
+        </div>
+        <div class="strategy-block">
+            <div class="strategy-header">
+                <img src="v2.png" alt="FODDv2 (PRO)" class="strategy-img" />
+                <h2>FODDv2 (PRO)</h2>
+            </div>
+            <div id="stats-bar-v2" class="stats-bar"></div>
+            <div class="table-container">
+                <table id="tradeTable-v2">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Coin</th>
+                            <th>L/S</th>
+                            <th>Entry</th>
+                            <th>Exit</th>
+                            <th>Reason</th>
+                            <th>PnL</th>
+                            <th>Equity</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div id="pagination-container-2" class="pagination-container"></div>
+            <div id="total-return-bar-v2" class="total-return-container"></div>
+        </div>
+        <div id="info-popup" class="info-popup" style="display: none"></div>
+        <script src="scripts.js"></script>
+</body>
+</html>
