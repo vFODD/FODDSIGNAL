@@ -102,8 +102,9 @@ function calcStats(trades) {
                     .split("\n")
                     .filter((row) => row.trim())
                     .map((row) => {
+                        // Coin adında parantez ve ekstra metinleri de kapsayacak şekilde regex güncellendi
                         const match = row.match(
-                            /^\[(.+?)\] (.+?) (SHORT|LONG) - Entry: (.+?), SL: (.+?), TP: (.+?), Exit: (.+?), Reason: (.+?), Result: (.+?), Equity: (.+?)$/,
+                            /^\[(.+?)\] (.+?) (SHORT|LONG)(?: \((.*?)\))? - Entry: (.+?), SL: (.+?), TP: (.+?), Exit: (.+?), Reason: (.+?), Result: (.+?), Equity: (.+?)$/
                         );
                         if (match) {
                             const [
@@ -111,6 +112,7 @@ function calcStats(trades) {
                                 time,
                                 coin,
                                 direction,
+                                extra,
                                 entry,
                                 sl,
                                 tp,
@@ -121,7 +123,7 @@ function calcStats(trades) {
                             ] = match;
                             return {
                                 time,
-                                coin,
+                                coin: extra ? coin + ' (' + extra + ')' : coin,
                                 direction,
                                 entry,
                                 sl,
@@ -750,9 +752,14 @@ function calcStats(trades) {
             }
             exitCell += `</div>`;
 
+            let coinCell = t.coin;
+            const exclusiveMatch = t.coin.match(/^(.*?) \(.*?Exclusive Signal.*?\)$/);
+            if (exclusiveMatch) {
+                coinCell = `✨ ${exclusiveMatch[1].trim()}`;
+            }
             tr.innerHTML = `
                 <td class="time-cell">${formatTimeCell(t.time)}</td>
-                <td>${t.coin}</td>
+                <td>${coinCell}</td>
                 <td class="${dirClass}">${t.direction}</td>
                 <td>${entryCell}</td>
                 <td>${exitCell}</td>
@@ -794,9 +801,15 @@ function calcStats(trades) {
             }
             exitCell += `</div>`;
 
+            // Coin adında (✨Exclusive Signal) varsa, sadece başına ✨ ekleyip coin adını göster
+            let coinCell = t.coin;
+            const exclusiveMatch = t.coin.match(/^(.*?) \(.*?Exclusive Signal.*?\)$/);
+            if (exclusiveMatch) {
+                coinCell = `✨ ${exclusiveMatch[1].trim()}`;
+            }
             tr.innerHTML = `
                 <td class="time-cell">${formatTimeCell(t.time)}</td>
-                <td>${t.coin}</td>
+                <td>${coinCell}</td>
                 <td class="${dirClass}">${t.direction}</td>
                 <td>${entryCell}</td>
                 <td>${exitCell}</td>
