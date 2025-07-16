@@ -102,7 +102,6 @@ function calcStats(trades) {
                     .split("\n")
                     .filter((row) => row.trim())
                     .map((row) => {
-                        // Coin adında parantez ve ekstra metinleri de kapsayacak şekilde regex güncellendi
                         const match = row.match(
                             /^\[(.+?)\] (.+?) (SHORT|LONG)(?: \((.*?)\))? - Entry: (.+?), SL: (.+?), TP: (.+?), Exit: (.+?), Reason: (.+?), Result: (.+?), Equity: (.+?)$/
                         );
