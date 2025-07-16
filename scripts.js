@@ -368,12 +368,30 @@ function calcStats(trades) {
                     dayMap[key] = {eq, date: new Date(key)};
                 }
             });
-            let points = Object.values(dayMap).sort((a,b)=>a.date-b.date);
-
-            if (points.length > 0) {
-                let firstDate = new Date(points[0].date.getTime());
-                firstDate.setDate(firstDate.getDate() - 1);
-                points.unshift({ eq: 100, date: firstDate });
+            let keys = Object.keys(dayMap).sort();
+            let points = [];
+            if (keys.length > 0) {
+                let firstDate = new Date(keys[0]);
+                let lastDate = new Date(keys[keys.length-1]);
+                let startDate = new Date(firstDate.getTime());
+                startDate.setDate(startDate.getDate() - 1);
+                let curDate = new Date(startDate);
+                let lastEq = 100;
+                let today = new Date();
+                today.setHours(0,0,0,0);
+                while (curDate <= lastDate) {
+                    let key = curDate.toISOString().slice(0,10);
+                    if (dayMap[key]) {
+                        lastEq = dayMap[key].eq;
+                        points.push({ eq: lastEq, date: new Date(curDate) });
+                    } else {
+                        points.push({ eq: lastEq, date: new Date(curDate) });
+                    }
+                    curDate.setDate(curDate.getDate() + 1);
+                }
+                if (lastDate < today) {
+                    points.push({ eq: lastEq, date: new Date(today) });
+                }
             } else {
                 let yesterday = new Date();
                 yesterday.setDate(yesterday.getDate() - 1);
@@ -538,26 +556,6 @@ function calcStats(trades) {
             }
             ctx.stroke();
             ctx.restore();
-            ctx.save();
-            xy2.forEach((pt,i)=>{
-                ctx.beginPath();
-                ctx.arc(pt.x,pt.y, i===xy2.length-1 ? Math.max(4, cssWidth*0.007) : Math.max(2.2, cssWidth*0.0045),0,2*Math.PI);
-                ctx.fillStyle = i===xy2.length-1 ? "#06a091" : "#b3b3d7";
-                ctx.shadowColor = i===xy2.length-1 ? "#06a091" : "#23272f";
-                ctx.shadowBlur = i===xy2.length-1 ? 16 : 4;
-                ctx.fill();
-                ctx.shadowBlur = 0;
-            });
-            ctx.restore();
-            ctx.save();
-            ctx.font = `bold ${Math.max(11, Math.round(cssHeight*0.04))}px 'Consolas', 'Menlo', 'monospace'`;
-            ctx.fillStyle = "#b3b3d7";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "top";
-            ctx.shadowColor = "#000";
-            ctx.shadowBlur = 2;
-            ctx.shadowOffsetX = 0.5;
-            ctx.shadowOffsetY = 0.5;
             let minXLabels = 5, maxXLabels = 9;
             let n = points.length;
             let bestIndices = [];
@@ -569,7 +567,10 @@ function calcStats(trades) {
                 } else {
                     let step = Math.ceil(n / targetLabels);
                     if (step <= 7) {
-                        for (let i = 0; i < n; i += step) indices.push(i);
+                        for (let k = 0; k < targetLabels; k++) {
+                            let idx = Math.round(k * (n - 1) / (targetLabels - 1));
+                            indices.push(idx);
+                        }
                     } else if (step <= 28) {
                         let lastWeek = null;
                         for (let i = 0; i < n; i++) {
@@ -602,6 +603,32 @@ function calcStats(trades) {
                 }
             }
             let indices = bestIndices.length ? bestIndices : [0, n-1];
+
+            ctx.save();
+            let labelPointSet = new Set();
+            indices.forEach(idx => labelPointSet.add(idx));
+            xy2.forEach((pt,i)=>{
+                if (labelPointSet.has(i)) {
+                    ctx.beginPath();
+                    ctx.arc(pt.x,pt.y, i===xy2.length-1 ? Math.max(4, cssWidth*0.007) : Math.max(2.2, cssWidth*0.0045),0,2*Math.PI);
+                    ctx.fillStyle = i===xy2.length-1 ? "#06a091" : "#b3b3d7";
+                    ctx.shadowColor = i===xy2.length-1 ? "#06a091" : "#23272f";
+                    ctx.shadowBlur = i===xy2.length-1 ? 16 : 4;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            });
+            ctx.restore();
+
+            ctx.save();
+            ctx.font = `bold ${Math.max(11, Math.round(cssHeight*0.04))}px 'Consolas', 'Menlo', 'monospace'`;
+            ctx.fillStyle = "#b3b3d7";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "top";
+            ctx.shadowColor = "#000";
+            ctx.shadowBlur = 2;
+            ctx.shadowOffsetX = 0.5;
+            ctx.shadowOffsetY = 0.5;
             for(let k=0; k<indices.length; k++){
                 let idx = indices[k];
                 let p = points[idx];
