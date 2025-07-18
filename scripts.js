@@ -95,48 +95,44 @@ function calcStats(trades) {
                 };
             }
             function parseTrades(data) {
-                return data
-                    .trim()
-                    .replace(/\r\n/g, "\n")
-                    .replace(/\r/g, "\n")
-                    .split("\n")
-                    .filter((row) => row.trim())
-                    .map((row) => {
-                        const match = row.match(
-                            /^\[(.+?)\] (.+?) (SHORT|LONG)(?: \((.*?)\))? - Entry: (.+?), SL: (.+?), TP: (.+?), Exit: (.+?), Reason: (.+?), Result: (.+?), Equity: (.+?)$/
-                        );
-                        if (match) {
-                            const [
-                                ,
-                                time,
-                                coin,
-                                direction,
-                                extra,
-                                entry,
-                                sl,
-                                tp,
-                                exit,
-                                reason,
-                                result,
-                                equity,
-                            ] = match;
-                            return {
-                                time,
-                                coin: extra ? coin + ' (' + extra + ')' : coin,
-                                direction,
-                                entry,
-                                sl,
-                                tp,
-                                exit,
-                                reason,
-                                result,
-                                equity,
-                            };
-                        }
-                        return null;
-                    })
-                    .filter(Boolean);
-            }
+    const lines = data.trim().replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+    if (!lines.length) return [];
+    const header = lines[0].split(",").map(h => h.trim());
+    const idx = {
+        entryTime: header.indexOf("Entry Time"),
+        exitTime: header.indexOf("Exit Time"),
+        symbol: header.indexOf("Symbol"),
+        type: header.indexOf("Type"),
+        special: header.indexOf("Special"),
+        entry: header.indexOf("Entry"),
+        sl: header.indexOf("SL"),
+        tp: header.indexOf("TP"),
+        exit: header.indexOf("Exit"),
+        reason: header.indexOf("Reason"),
+        result: header.indexOf("Result (%)"),
+        equity: header.indexOf("Equity"),
+    };
+    return lines.slice(1)
+        .filter(row => row.trim())
+        .map(row => {
+            const cols = row.split(",");
+            if (cols.length < header.length) return null;
+            return {
+                time: `${cols[idx.entryTime]} - ${cols[idx.exitTime]}`,
+                coin: cols[idx.symbol],
+                direction: cols[idx.type],
+                entry: cols[idx.entry],
+                sl: cols[idx.sl],
+                tp: cols[idx.tp],
+                exit: cols[idx.exit],
+                reason: cols[idx.reason],
+                result: cols[idx.result],
+                equity: cols[idx.equity],
+                special: cols[idx.special],
+            };
+        })
+        .filter(Boolean);
+}
 
             function loadTradesGeneric(
                 csv,
