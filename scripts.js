@@ -829,7 +829,6 @@ function calcStats(trades) {
             }
             exitCell += `</div>`;
 
-            // Coin adında (✨Exclusive Signal) varsa, sadece başına ✨ ekleyip coin adını göster
             let coinCell = t.coin;
             const exclusiveMatch = t.coin.match(/^(.*?) \(.*?Exclusive Signal.*?\)$/);
             if (exclusiveMatch) {
@@ -941,7 +940,7 @@ function calcStats(trades) {
                 const labels = isTR
                     ? {
                           sharpe: "Sharpe Ratio: Riske göre düzeltilmiş getiri oranı. Daha yüksek değer, daha iyi risk-ayarlı performans.",
-                          equivWin: "Equiv. Win Rate: Ortalama risk/ödül oranına göre 1:1 R:R ile eşdeğer kazanma oranı. Yani sisteminiz 1:1 oynasaydı bu kazanma oranına denk olurdu.",
+                          equivWin: "Equivalent Win Rate @1:1: Ortalama risk/ödül oranına göre 1:1 R:R ile eşdeğer kazanma oranı.",
                           rr: "Avg R:R: Ortalama Risk/Ödül oranı. 1'den büyükse, kazançlar kayıplardan daha büyüktür.",
                           dd: "Max Drawdown: En büyük sermaye düşüşü. Düşük olması daha iyidir.",
                           week: "Weekly Return: Son haftanın toplam net getirisi.",
@@ -950,7 +949,7 @@ function calcStats(trades) {
                       }
                     : {
                           sharpe: "Sharpe Ratio: Risk-adjusted return. Higher is better.",
-                          equivWin: "Equiv. Win Rate: Win rate equivalent if all trades were 1:1 R:R, based on average R:R.",
+                          equivWin: "Equivalent Win Rate @1:1: Win rate equivalent if all trades were 1:1 R:R, based on average R:R.",
                           rr: "Avg R:R: Average Risk/Reward ratio. Above 1 means gains are larger than losses.",
                           dd: "Max Drawdown: Largest equity drop. Lower is better.",
                           week: "Weekly Return: Net return for the last week.",
