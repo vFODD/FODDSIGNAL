@@ -958,7 +958,7 @@ function calcStats(trades) {
                       };
                 bar.innerHTML = `
         <div class="stat-box" data-info="${labels.sharpe}"><div class="stat-label">Sharpe Ratio</div><div class="stat-value stat-sharpe">${stats.sharpe}</div></div>
-        <div class="stat-box" data-info="${labels.equivWin}"><div class="stat-label">Equiv. Win Rate</div><div class="stat-value stat-win">${stats.equivWinRate}</div></div>
+        <div class="stat-box" data-info="${labels.equivWin}"><div class="stat-label">Eq. Win Rate</div><div class="stat-value stat-win">${stats.equivWinRate}</div></div>
         <div class="stat-box" data-info="${labels.rr}"><div class="stat-label">Avg R:R</div><div class="stat-value stat-rr">${stats.avgRR}</div></div>
         <div class="stat-box" data-info="${labels.dd}"><div class="stat-label">Max Drawdown</div><div class="stat-value stat-dd">${stats.maxDraw}</div></div>
         <div class="stat-box" data-info="${labels.week}"><div class="stat-label">Weekly Return</div><div class="stat-value stat-week">${stats.weekNet}</div></div>
