@@ -78,13 +78,19 @@ function calcStats(trades) {
                         if (dd > maxDD) maxDD = dd;
                     }
                 }
-                let winRate = ((win / n) * 100).toFixed(1) + "%";
                 let avgRR = rrCount ? (rrSum / rrCount).toFixed(2) : "—";
                 let maxDraw = maxDD ? (maxDD * 100).toFixed(2) + "%" : "—";
                 let dayCount = firstDate && lastDate ? Math.round((lastDate - firstDate) / 86400000) + 1 : null;
+                let equivWinRate = "—";
+                if (avgRR !== "—") {
+                    let avgRRNum = parseFloat(avgRR);
+                    if (avgRRNum > 0) {
+                        equivWinRate = (100 * (1 / (1 + 1 / avgRRNum))).toFixed(1) + "%";
+                    }
+                }
                 return {
                     sharpe,
-                    winRate,
+                    equivWinRate,
                     avgRR,
                     maxDraw,
                     monthNet: monthReturn,
@@ -935,7 +941,7 @@ function calcStats(trades) {
                 const labels = isTR
                     ? {
                           sharpe: "Sharpe Ratio: Riske göre düzeltilmiş getiri oranı. Daha yüksek değer, daha iyi risk-ayarlı performans.",
-                          win: "Win Rate: Kazanılan işlemlerin yüzdesi. Yüksek oran, daha fazla başarılı işlem demektir.",
+                          equivWin: "Equiv. Win Rate: Ortalama risk/ödül oranına göre 1:1 R:R ile eşdeğer kazanma oranı. Yani sisteminiz 1:1 oynasaydı bu kazanma oranına denk olurdu.",
                           rr: "Avg R:R: Ortalama Risk/Ödül oranı. 1'den büyükse, kazançlar kayıplardan daha büyüktür.",
                           dd: "Max Drawdown: En büyük sermaye düşüşü. Düşük olması daha iyidir.",
                           week: "Weekly Return: Son haftanın toplam net getirisi.",
@@ -944,7 +950,7 @@ function calcStats(trades) {
                       }
                     : {
                           sharpe: "Sharpe Ratio: Risk-adjusted return. Higher is better.",
-                          win: "Win Rate: Percentage of winning trades. Higher means more successful trades.",
+                          equivWin: "Equiv. Win Rate: Win rate equivalent if all trades were 1:1 R:R, based on average R:R.",
                           rr: "Avg R:R: Average Risk/Reward ratio. Above 1 means gains are larger than losses.",
                           dd: "Max Drawdown: Largest equity drop. Lower is better.",
                           week: "Weekly Return: Net return for the last week.",
@@ -953,7 +959,7 @@ function calcStats(trades) {
                       };
                 bar.innerHTML = `
         <div class="stat-box" data-info="${labels.sharpe}"><div class="stat-label">Sharpe Ratio</div><div class="stat-value stat-sharpe">${stats.sharpe}</div></div>
-        <div class="stat-box" data-info="${labels.win}"><div class="stat-label">Win Rate</div><div class="stat-value stat-win">${stats.winRate}</div></div>
+        <div class="stat-box" data-info="${labels.equivWin}"><div class="stat-label">Equiv. Win Rate</div><div class="stat-value stat-win">${stats.equivWinRate}</div></div>
         <div class="stat-box" data-info="${labels.rr}"><div class="stat-label">Avg R:R</div><div class="stat-value stat-rr">${stats.avgRR}</div></div>
         <div class="stat-box" data-info="${labels.dd}"><div class="stat-label">Max Drawdown</div><div class="stat-value stat-dd">${stats.maxDraw}</div></div>
         <div class="stat-box" data-info="${labels.week}"><div class="stat-label">Weekly Return</div><div class="stat-value stat-week">${stats.weekNet}</div></div>
