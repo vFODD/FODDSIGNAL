@@ -685,42 +685,44 @@ function calcStats(trades) {
     const [datePart, timePart] = timeStr.split(' ');
     if (!datePart) return timeStr;
     const [day, month, year] = datePart.split('.');
-    let dt;
+    let istDt;
     if (timePart) {
         const [hour, minute] = timePart.split(':');
-        dt = new Date(Date.UTC(
+        istDt = new Date(
             2000 + parseInt(year, 10),
             parseInt(month, 10) - 1,
             parseInt(day, 10),
-            parseInt(hour, 10) - 3,
+            parseInt(hour, 10),
             parseInt(minute, 10)
-        ));
+        );
     } else {
-        dt = new Date(Date.UTC(
+        istDt = new Date(
             2000 + parseInt(year, 10),
             parseInt(month, 10) - 1,
             parseInt(day, 10)
-        ));
+        );
     }
+    const utcDt = new Date(istDt.getTime() - (3 * 60 * 60 * 1000));
+    const localDt = new Date(utcDt.getTime() + (new Date().getTimezoneOffset() * -60 * 1000));
     const lang = (navigator.language || navigator.userLanguage || '').toLowerCase();
     const isTR = lang.startsWith('tr');
     const europeanLangs = [
-      'de', 'fr', 'es', 'it', 'nl', 'pl', 'pt', 'cs', 'da', 'fi', 'sv', 'no', 'hu', 'el', 'ro', 'bg', 'hr', 'lt', 'lv', 'et', 'sk', 'sl', 'mt', 'ga', 'eu', 'ca', 'is', 'sq', 'bs', 'mk', 'sr', 'tr'
+        'de', 'fr', 'es', 'it', 'nl', 'pl', 'pt', 'cs', 'da', 'fi', 'sv', 'no', 'hu', 'el', 'ro', 'bg', 'hr', 'lt', 'lv', 'et', 'sk', 'sl', 'mt', 'ga', 'eu', 'ca', 'is', 'sq', 'bs', 'mk', 'sr', 'tr'
     ];
     const isEU = europeanLangs.some(code => lang.startsWith(code));
     if (isTR || isEU) {
-        const dd = dt.getUTCDate().toString().padStart(2, '0');
-        const mm = (dt.getUTCMonth() + 1).toString().padStart(2, '0');
-        const yy = dt.getUTCFullYear().toString().slice(-2);
+        const dd = localDt.getDate().toString().padStart(2, '0');
+        const mm = (localDt.getMonth() + 1).toString().padStart(2, '0');
+        const yy = localDt.getFullYear().toString().slice(-2);
         if (timePart) {
-            const hh = dt.getUTCHours().toString().padStart(2, '0');
-            const min = dt.getUTCMinutes().toString().padStart(2, '0');
+            const hh = localDt.getHours().toString().padStart(2, '0');
+            const min = localDt.getMinutes().toString().padStart(2, '0');
             return `${dd}.${mm}.${yy} ${hh}:${min}`;
         } else {
             return `${dd}.${mm}.${yy}`;
         }
     }
-    return dt.toLocaleString(undefined, {
+    return localDt.toLocaleString(undefined, {
         year: '2-digit', month: '2-digit', day: '2-digit',
         hour: timePart ? '2-digit' : undefined,
         minute: timePart ? '2-digit' : undefined
