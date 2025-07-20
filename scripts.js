@@ -81,12 +81,18 @@ function calcStats(trades) {
                 let avgRR = rrCount ? (rrSum / rrCount).toFixed(2) : "—";
                 let maxDraw = maxDD ? (maxDD * 100).toFixed(2) + "%" : "—";
                 let dayCount = firstDate && lastDate ? Math.round((lastDate - firstDate) / 86400000) + 1 : null;
-                let equivWinRate = "—";
-                if (avgRR !== "—") {
-                    let avgRRNum = parseFloat(avgRR);
-                    if (avgRRNum > 0) {
-                        equivWinRate = (100 * (1 / (1 + 1 / avgRRNum))).toFixed(1) + "%";
+                let totalProfit = 0, totalLoss = 0;
+                trades.forEach((t) => {
+                    let r = parseFloat(t.result);
+                    if (!isNaN(r)) {
+                        if (r > 0) totalProfit += r;
+                        else if (r < 0) totalLoss += Math.abs(r);
                     }
+                });
+                let equivWinRate = "—";
+                if (totalProfit > 0 && totalLoss >= 0) {
+                    let eqwr = 1 / (1 + (totalLoss / totalProfit));
+                    equivWinRate = (eqwr * 100).toFixed(2) + "%";
                 }
                 return {
                     sharpe,
