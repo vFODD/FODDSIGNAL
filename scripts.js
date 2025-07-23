@@ -784,9 +784,10 @@ function calcStats(trades) {
             exitCell += `</div>`;
 
             let coinCell = t.coin;
-            const exclusiveMatch = t.coin.match(/^(.*?) \(.*?Exclusive Signal.*?\)$/);
-            if (exclusiveMatch) {
-                coinCell = `✨ ${exclusiveMatch[1].trim()}`;
+            if (t.special && t.special.includes('💥')) {
+                coinCell = `💥 ${t.coin}`;
+            } else if (t.special && t.special.includes('✨')) {
+                coinCell = `✨ ${t.coin}`;
             }
             tr.innerHTML = `
                 <td class="time-cell">${formatTimeCell(t.time)}</td>
@@ -833,9 +834,8 @@ function calcStats(trades) {
             exitCell += `</div>`;
 
             let coinCell = t.coin;
-            const exclusiveMatch = t.coin.match(/^(.*?) \(.*?Exclusive Signal.*?\)$/);
-            if (exclusiveMatch) {
-                coinCell = `✨ ${exclusiveMatch[1].trim()}`;
+            if (t.special && t.special.includes('Exclusive Signal')) {
+                coinCell = `✨ ${t.coin}`;
             }
             tr.innerHTML = `
                 <td class="time-cell">${formatTimeCell(t.time)}</td>
