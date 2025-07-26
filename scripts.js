@@ -784,9 +784,7 @@ function calcStats(trades) {
             exitCell += `</div>`;
 
             let coinCell = t.coin;
-            if (t.special && t.special.includes('💥')) {
-                coinCell = `💥 ${t.coin}`;
-            } else if (t.special && t.special.includes('✨')) {
+            if (t.special && t.special.includes('✨')) {
                 coinCell = `✨ ${t.coin}`;
             }
             tr.innerHTML = `
@@ -834,9 +832,7 @@ function calcStats(trades) {
             exitCell += `</div>`;
 
             let coinCell = t.coin;
-            if (t.special && t.special.includes('💥')) {
-                coinCell = `💥 ${t.coin}`;
-            } else if (t.special && t.special.includes('✨')) {
+            if (t.special && t.special.includes('✨')) {
                 coinCell = `✨ ${t.coin}`;
             }
             tr.innerHTML = `
