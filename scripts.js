@@ -419,9 +419,9 @@ function calcStats(trades) {
             let dataRange = maxPct - minPct;
 
             let targetLabels = 6;
-            let minStep = 1;
+            let minStep = 2; // minimum step artık 2
             let maxStep = 100000;
-            let bestStep = 1;
+            let bestStep = minStep;
             let bestDiff = Infinity;
             let stepCandidates = [];
             let baseSteps = [1,2,5];
@@ -429,6 +429,8 @@ function calcStats(trades) {
                 let pow = Math.pow(10, exp);
                 baseSteps.forEach(bs => stepCandidates.push(bs*pow));
             }
+            // minStep'ten küçük step'ler elenir
+            stepCandidates = stepCandidates.filter(s => s >= minStep);
             for(let s of stepCandidates) {
                 let margin = Math.max(s * 0.5, dataRange * 0.1);
                 let expandedMin = minPct - margin;
@@ -439,7 +441,7 @@ function calcStats(trades) {
                 let totalRange = maxPctLabel - minPctLabel;
                 let labelCount = Math.round(totalRange / s) + 1;
                 let diff = Math.abs(labelCount - targetLabels);
-                if (labelCount >= 5 && labelCount <= 7 && diff < bestDiff) {
+                if (labelCount >= 4 && labelCount <= 8 && diff < bestDiff) {
                     bestStep = s;
                     bestDiff = diff;
                 }
@@ -467,6 +469,8 @@ function calcStats(trades) {
             ctx.setLineDash([4, 7]);
 
             let yLabelCount = Math.round(totalRange / step) + 1;
+            // yLabelCount üst sınırı
+            if (yLabelCount > 8) yLabelCount = 8;
             for(let i=0; i<yLabelCount; i++){
                 let y = padY + (H-2*padY)*(1-i/(yLabelCount-1));
                 ctx.beginPath();
@@ -520,6 +524,7 @@ function calcStats(trades) {
             ctx.shadowOffsetY = 0.5;
             
             let yLabelCount2 = Math.round(totalRange / step) + 1;
+            if (yLabelCount2 > 8) yLabelCount2 = 8;
             for(let i=0; i<yLabelCount2; i++){
                 let y = padY + (H-2*padY)*(1-i/(yLabelCount2-1));
                 let pct = minPctLabel + (step * i);
