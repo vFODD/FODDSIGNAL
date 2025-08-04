@@ -332,17 +332,21 @@ function calcStats(trades) {
             const dpr = window.devicePixelRatio || 1;
             let parent = canvas.parentElement;
     let maxW = 1100, maxH = 500;
-    let minW = 600;
+    let minW = 600, minH = 320;
+    let parentW = parent ? parent.clientWidth : maxW;
+    let parentH = parent ? parent.clientHeight : maxH;
+    if (parentW < 100) parentW = maxW;
+    if (parentH < 100) parentH = maxH;
     let availW = Math.max(minW, Math.min(
         maxW,
         window.innerWidth * 0.99,
-        parent ? parent.clientWidth * 0.98 : maxW
+        parentW * 0.98
     ));
-    let availH = Math.min(
+    let availH = Math.max(minH, Math.min(
         maxH,
         window.innerHeight * 0.80,
-        parent ? parent.clientHeight * 0.98 : maxH
-    );
+        parentH * 0.98
+    ));
     let aspect = maxW / maxH;
     if (availW / availH > aspect) {
         availW = availH * aspect;
