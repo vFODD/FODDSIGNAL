@@ -574,7 +574,7 @@ function calcStats(trades) {
                             let idx = Math.round(k * (n - 1) / (targetLabels - 1));
                             indices.push(idx);
                         }
-                    } else if (step <= 28) {
+                    } else if (step <= 150) {
                         let lastWeek = null;
                         for (let i = 0; i < n; i++) {
                             let d = points[i].date;
@@ -644,7 +644,7 @@ function calcStats(trades) {
                 ];
                 const isEU = europeanLangs.some(code => lang.startsWith(code));
                 if (isTR || isEU) {
-                    if (n > 28 && (k === 0 || k === indices.length-1 || indices.length <= 6)) {
+                    if (n > 150 && (k === 0 || k === indices.length-1 || indices.length <= 6)) {
                         const month = (p.date.getMonth() + 1).toString().padStart(2, '0');
                         const year = p.date.getFullYear().toString().slice(-2);
                         label = `${month}.${year}`;
@@ -653,7 +653,7 @@ function calcStats(trades) {
                         const month = (p.date.getMonth() + 1).toString().padStart(2, '0');
                         label = `${day}.${month}`;
                     }
-                } else if (n > 28 && (k === 0 || k === indices.length-1 || indices.length <= 6)) {
+                } else if (n > 150 && (k === 0 || k === indices.length-1 || indices.length <= 6)) {
                     label = p.date.toLocaleDateString(undefined, { year: '2-digit', month: '2-digit' });
                 } else {
                     label = p.date.toLocaleDateString(undefined, { month: '2-digit', day: '2-digit' });
