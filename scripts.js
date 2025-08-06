@@ -80,7 +80,15 @@ function calcStats(trades) {
                 }
                 let avgRR = rrCount ? (rrSum / rrCount).toFixed(2) : "—";
                 let maxDraw = maxDD ? (maxDD * 100).toFixed(2) + "%" : "—";
-                let dayCount = firstDate && lastDate ? Math.round((lastDate - firstDate) / 86400000) + 1 : null;
+                
+                let dayCount = null;
+                if (firstDate && lastDate) {
+                    let chartEndDate = new Date();
+                    chartEndDate.setHours(0,0,0,0);
+                    let effectiveEndDate = lastDate >= chartEndDate ? lastDate : chartEndDate;
+                    dayCount = Math.round((effectiveEndDate - firstDate) / 86400000) + 1;
+                }
+                
                 let equivWinRate = "—";
                 if (avgRR !== "—") {
                     let avgRRNum = parseFloat(avgRR);
