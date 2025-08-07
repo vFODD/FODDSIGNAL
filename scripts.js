@@ -681,7 +681,17 @@ function calcStats(trades) {
         }
                         }
 
-                        const tradesPerPage = 7;
+                        let tradesPerPage = 7;
+                        if (window.innerWidth <= 1000) {
+                            const vh = window.innerHeight;
+                            if (vh <= 650) {
+                                tradesPerPage = 6;
+                            } else if (vh <= 570) {
+                                tradesPerPage = 5;
+                            } else {
+                                tradesPerPage = 7;
+                            }
+                        }
 
                         if (!window._currentPages) window._currentPages = {};
                         if (!window._currentPages[tableId]) window._currentPages[tableId] = 1;
