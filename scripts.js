@@ -846,9 +846,7 @@ function calcStats(trades) {
             exitCell += `</div>`;
 
             let coinCell = t.coin;
-            if (t.special && t.special.includes('✨')) {
-                coinCell = `✨ ${t.coin}`;
-            }
+
             tr.innerHTML = `
                 <td class="time-cell">${formatTimeCell(t.time)}</td>
                 <td>${coinCell}</td>
