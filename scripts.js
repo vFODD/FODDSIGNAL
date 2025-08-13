@@ -35,17 +35,22 @@ function calcStats(trades) {
 
                 let totalReturn = ((lastEquity / firstEquity - 1) * 100).toFixed(2) + "%";
 
-                let now = lastDate;
-                let weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7);
-                let monthAgo = new Date(now); monthAgo.setMonth(now.getMonth() - 1);
+                let today = new Date();
+                today.setHours(0,0,0,0);
+                let sevenDaysAgo = new Date(today);
+                sevenDaysAgo.setDate(today.getDate() - 7);
+                let thirtyDaysAgo = new Date(today);
+                thirtyDaysAgo.setDate(today.getDate() - 30);
 
-                let eqWeekAgo = firstEquity, eqMonthAgo = firstEquity;
+                let eq7DaysAgo = null, eq30DaysAgo = null;
                 for (let i = 0; i < dates.length; i++) {
-                    if (dates[i] <= weekAgo) eqWeekAgo = equity[i];
-                    if (dates[i] <= monthAgo) eqMonthAgo = equity[i];
+                    if (dates[i] <= sevenDaysAgo) eq7DaysAgo = equity[i];
+                    if (dates[i] <= thirtyDaysAgo) eq30DaysAgo = equity[i];
                 }
-                let weekReturn = eqWeekAgo ? ((lastEquity / eqWeekAgo - 1) * 100).toFixed(2) + "%" : "—";
-                let monthReturn = eqMonthAgo ? ((lastEquity / eqMonthAgo - 1) * 100).toFixed(2) + "%" : "—";
+                if (eq7DaysAgo === null) eq7DaysAgo = equity.length ? equity[0] : firstEquity;
+                if (eq30DaysAgo === null) eq30DaysAgo = equity.length ? equity[0] : firstEquity;
+                let weekReturn = eq7DaysAgo ? ((lastEquity / eq7DaysAgo - 1) * 100).toFixed(2) + "%" : "—";
+                let monthReturn = eq30DaysAgo ? ((lastEquity / eq30DaysAgo - 1) * 100).toFixed(2) + "%" : "—";
 
                 const n = trades.length;
                 let win = 0,
